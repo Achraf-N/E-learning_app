@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "image": "../../../../src/Assets/ManTeacher.jpeg",
+    "image": "/assets/ManTeacher.jpeg",
     "job": "Machine Learning Specialist",
     "job_fr": "Spécialiste en apprentissage automatique",
     "job_ar": "أخصائي في التعلم الآلي",
