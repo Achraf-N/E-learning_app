@@ -1,7 +1,7 @@
 [
   {
     "id": "1",
-    "image": "../../../../src/Assets/AdvancedProgramming.jpg",
+    "image": "/assets/AdvancedProgramming.jpg",
     "name": "Advanced Programming",
     "name_fr": "Programmation Avancée",
     "description": "Maîtrisez la programmation orientée objet, les patrons de conception (design patterns) et les bonnes pratiques du développement logiciel moderne avec des langages comme Java, C# ou Python.",
@@ -71,7 +71,7 @@
   },
   {
     "id": "2",
-    "image": "../../../../src/Assets/WebDevelopment.jpg",
+    "image": "/assets/WebDevelopment.jpg",
     "name": "Web Development",
     "name_fr": "Développement Web",
     "description": "Apprenez à créer des applications web modernes, en maîtrisant HTML, CSS, JavaScript, ainsi que les frameworks frontend et backend populaires comme React et Node.js.",
@@ -141,7 +141,7 @@
   },
   {
     "id": "3",
-    "image": "../../../../src/Assets/DataBase.jpg",
+    "image": "/assets/DataBase.jpg",
     "name": "Database Systems",
     "name_fr": "Systèmes de Bases de Données",
     "description": "Explore relational and NoSQL databases, advanced SQL queries, normalization, indexing, transactions, and data modeling techniques.",
@@ -212,7 +212,7 @@
 
   {
     "id": "4",
-    "image": "../../../../src/Assets/CloudComputing.jpg",
+    "image": "/assets/CloudComputing.jpg",
     "name": "Cloud Computing",
     "name_fr": "Informatique en Nuage",
     "description": "Gain practical knowledge of cloud services like AWS, Azure, and GCP, including containerization, microservices, and cloud architecture.",

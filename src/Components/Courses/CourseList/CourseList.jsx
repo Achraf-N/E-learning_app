@@ -9,6 +9,28 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * CoursList Component
+ * 
+ * This component renders a list of courses in a responsive Swiper carousel format. 
+ * It adapts the course details based on the user's current language preference.
+ * 
+ * The component uses the i18next translation library to provide translations for
+ * course names and descriptions in Arabic and French, falling back to the default
+ * language if neither is set.
+ * 
+ * The component renders a Swiper carousel that displays course images, names, and 
+ * descriptions, and includes a link to learn more about each course.
+ * 
+ * Dependencies:
+ * - react-router-dom for navigation links
+ * - swiper/react for rendering the Swiper carousel
+ * - react-lazy-load-image-component for lazy loading images
+ * - i18next for language translations
+ */
+
+/*******  875f0955-9622-434a-b20c-c511f953500a  *******/
 const CoursList = () => {
   const { t, i18n } = useTranslation();
 

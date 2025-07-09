@@ -1,7 +1,7 @@
 import React from 'react';
 import { Title } from '../../../GeneralFunctions/title';
 import { useTranslation } from 'react-i18next';
-
+import ContactUs from './../../../../src/Assets/ContactUs.jpeg';
 const Header = () => {
   const { t } = useTranslation();
 
@@ -10,7 +10,10 @@ const Header = () => {
   return (
     <>
       <div>
-        <div className="bg-[url('./../../../../src/Assets/ContactUs.jpeg')] bg-cover bg-fixed h-[50vh] md:h-[70vh] lg:h-[90vh] relative">
+        <div
+          className="bg-cover bg-fixed h-[50vh] md:h-[70vh] lg:h-[90vh] relative"
+          style={{ backgroundImage: `url(${ContactUs})` }}
+        >
           <div className="container">
             <div className="w-full lg:w-12/12 text-center text-main-color absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
               <div className="mb-4 font-bold relative before:absolute before:hidden before:xl:block before:h-1 before:w-16 before:left-1/2 before:-translate-x-1/2  before:bg-second-color before:top-[115%]">
