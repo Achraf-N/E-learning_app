@@ -25,6 +25,7 @@ const Courses = lazy(() => import('./Components/Courses/Home'));
 const CourseDetails = lazy(() =>
   import('./Components/Courses/CourseDetails/CourseDetails')
 );
+const VerifyEmail = lazy(() => import('./Components/Verify/verify-email'));
 const Error = lazy(() => import('./Components/404Error/Error'));
 const Up = lazy(() => import('./Components/Ui/Up/Up'));
 
@@ -58,6 +59,7 @@ const App = () => {
           <Route path="/Faq" element={<Faq />} />
           <Route path="/Sign-up" element={<SignUp />} />
           <Route path="/Login" element={<Login />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="*" element={<Error />} />
         </Routes>
         <Up />
