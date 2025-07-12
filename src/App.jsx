@@ -2,11 +2,14 @@ import React, { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './GeneralFunctions/ScrollTop';
 import { Navbar } from './INDEX';
-
 const Home = lazy(() => import('./Components/Home/Home'));
 const Teachers = lazy(() => import('./Components/Teachers/Home'));
 const TeachersDetails = lazy(() =>
   import('./Components/Teachers/TeachersDetails/TeacherDetails')
+);
+
+const PrivateRoute = lazy(() =>
+  import('./Components/PrivateRoute/PrivateRoute')
 );
 const AboutUs = lazy(() => import('./Components/About-Us/Home'));
 const SignUp = lazy(() => import('./Components/SignUp/SignUp'));
@@ -42,7 +45,14 @@ const App = () => {
           <Route path="/blog-details/:blogId" element={<BlogDetails />} />
           */}
           <Route path="/our-courses" element={<Courses />} />
-          <Route path="/course-details/:courseId" element={<CourseDetails />} />
+          <Route
+            path="/course-details/:courseId"
+            element={
+              <PrivateRoute>
+                <CourseDetails />
+              </PrivateRoute>
+            }
+          />
           <Route path="/About-us" element={<AboutUs />} />
           <Route path="/Contact-Us" element={<ContactUs />} />
           <Route path="/Faq" element={<Faq />} />

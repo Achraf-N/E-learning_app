@@ -1,282 +1,162 @@
 [
   {
     "id": "1",
-    "image": "/assets/AdvancedProgramming.jpg",
-    "name": "Advanced Programming",
-    "name_fr": "Programmation Avancée",
-    "description": "Maîtrisez la programmation orientée objet, les patrons de conception (design patterns) et les bonnes pratiques du développement logiciel moderne avec des langages comme Java, C# ou Python.",
-    "description_fr": "Maîtrisez la programmation orientée objet, les patrons de conception (design patterns) et les bonnes pratiques du développement logiciel moderne avec des langages comme Java, C# ou Python.",
-    "about": {
-      "en": "This Advanced Programming course is designed to help you master object-oriented programming (OOP), design patterns, and modern software development best practices using languages such as Java, C#, and Python. You'll go beyond the basics to explore concurrency, unit testing, software architecture, and advanced language features. By the end, you'll be equipped to write clean, scalable, and maintainable code for real-world systems.",
-      "fr": "Ce cours de Programmation Avancée vous permet de maîtriser la programmation orientée objet, les patrons de conception et les bonnes pratiques du développement logiciel moderne avec des langages comme Java, C# et Python. Vous irez au-delà des bases pour explorer la concurrence, les tests unitaires, l’architecture logicielle et les fonctionnalités avancées des langages. À la fin du cours, vous serez capable d’écrire du code propre, évolutif et maintenable."
-    },
-    "lessons": [
-      {
-        "id": "1",
-        "title": "Lesson 1: Introduction to Advanced Programming",
-        "title_fr": "Leçon 1: Introduction à la programmation avancée",
-        "video": "https://example.com/lesson6.mp4",
-        "pdf": "https://example.com/lesson1.pdf",
-        "completed": false
-      },
-      {
-        "id": "2",
-        "title": "Lesson 2: Object-Oriented Programming",
-        "title_fr": "Leçon 2: Programmation orientée objet",
-        "video": "https://example.com/lesson2.mp4",
-        "pdf": "https://example.com/lesson2.pdf",
-        "completed": true
-      },
-      {
-        "id": "3",
-        "title": "Lesson 3: Design Patterns",
-        "title_fr": "Leçon 3: Patrons de conception",
-        "video": "https://example.com/lesson3.mp4",
-        "pdf": "https://example.com/lesson3.pdf",
-        "completed": false
-      },
-      {
-        "id": "4",
-        "title": "Lesson 4: Concurrency and Multithreading",
-        "title_fr": "Leçon 4: Concurrence et multithreading",
-        "video": "https://example.com/lesson4.mp4",
-        "pdf": "https://example.com/lesson4.pdf",
-        "completed": false
-      },
-      {
-        "id": "5",
-        "title": "Lesson 5: Unit Testing and Test-Driven Development",
-        "title_fr": "Leçon 5: Tests unitaires et développement piloté par les tests",
-        "video": "https://example.com/lesson5.mp4",
-        "pdf": "https://example.com/lesson5.pdf",
-        "completed": false
-      },
-      {
-        "id": "6",
-        "title": "Lesson 6: Software Architecture and Design Principles",
-        "title_fr": "Leçon 6: Architecture logicielle et principes de conception",
-        "video": "https://example.com/lesson6.mp4",
-        "pdf": "https://example.com/lesson6.pdf",
-        "completed": false
-      },
-      {
-        "id": "7",
-        "title": "Lesson 7: Advanced Language Features",
-        "title_fr": "Leçon 7: Fonctionnalités avancées des langages",
-        "video": "https://example.com/lesson7.mp4",
-        "pdf": "https://example.com/lesson7.pdf",
-        "completed": false
-      }
-    ]
-  },
-  {
-    "id": "2",
-    "image": "/assets/WebDevelopment.jpg",
-    "name": "Web Development",
-    "name_fr": "Développement Web",
-    "description": "Apprenez à créer des applications web modernes, en maîtrisant HTML, CSS, JavaScript, ainsi que les frameworks frontend et backend populaires comme React et Node.js.",
-    "description_fr": "Apprenez à créer des applications web modernes, en maîtrisant HTML, CSS, JavaScript, ainsi que les frameworks frontend et backend populaires comme React et Node.js.",
-    "about": {
-      "en": "This Web Development course is designed to teach you how to build modern, responsive websites and web applications from scratch. You'll start with core technologies like HTML, CSS, and JavaScript, then move on to advanced tools like React, Node.js, and databases. You'll also learn about version control, API creation, and deployment strategies. By the end of the course, you'll be capable of building and deploying complete full-stack web applications.",
-      "fr": "Ce cours de développement web est conçu pour vous apprendre à créer des sites web et des applications web modernes et réactives à partir de zéro. Vous commencerez par les technologies de base comme HTML, CSS et JavaScript, puis vous passerez à des outils avancés comme React, Node.js et les bases de données. Vous apprendrez également le contrôle de version, la création d’API et les stratégies de déploiement. À la fin du cours, vous serez capable de créer et de déployer des applications web complètes."
-    },
-    "lessons": [
-      {
-        "id": "1",
-        "title": "Lesson 1: Introduction to Web Development",
-        "title_fr": "Leçon 1: Introduction au développement web",
-        "video": "https://example.com/web_lesson1.mp4",
-        "pdf": "https://example.com/web_lesson1.pdf",
-        "completed": false
-      },
-      {
-        "id": "2",
-        "title": "Lesson 2: HTML and CSS Fundamentals",
-        "title_fr": "Leçon 2: Fondamentaux HTML et CSS",
-        "video": "https://example.com/web_lesson2.mp4",
-        "pdf": "https://example.com/web_lesson2.pdf",
-        "completed": false
-      },
-      {
-        "id": "3",
-        "title": "Lesson 3: JavaScript Basics and DOM Manipulation",
-        "title_fr": "Leçon 3: Bases de JavaScript et manipulation du DOM",
-        "video": "https://example.com/web_lesson3.mp4",
-        "pdf": "https://example.com/web_lesson3.pdf",
-        "completed": false
-      },
-      {
-        "id": "4",
-        "title": "Lesson 4: Frontend Frameworks (React Basics)",
-        "title_fr": "Leçon 4: Frameworks Frontend (bases de React)",
-        "video": "https://example.com/web_lesson4.mp4",
-        "pdf": "https://example.com/web_lesson4.pdf",
-        "completed": false
-      },
-      {
-        "id": "5",
-        "title": "Lesson 5: Backend Development with Node.js and Express",
-        "title_fr": "Leçon 5: Développement Backend avec Node.js et Express",
-        "video": "https://example.com/web_lesson5.mp4",
-        "pdf": "https://example.com/web_lesson5.pdf",
-        "completed": false
-      },
-      {
-        "id": "6",
-        "title": "Lesson 6: Databases and RESTful APIs",
-        "title_fr": "Leçon 6: Bases de données et APIs RESTful",
-        "video": "https://example.com/web_lesson6.mp4",
-        "pdf": "https://example.com/web_lesson6.pdf",
-        "completed": false
-      },
-      {
-        "id": "7",
-        "title": "Lesson 7: Deployment and Best Practices",
-        "title_fr": "Leçon 7: Déploiement et bonnes pratiques",
-        "video": "https://example.com/web_lesson7.mp4",
-        "pdf": "https://example.com/web_lesson7.pdf",
-        "completed": false
-      }
-    ]
-  },
-  {
-    "id": "3",
     "image": "/assets/DataBase.jpg",
-    "name": "Database Systems",
-    "name_fr": "Systèmes de Bases de Données",
-    "description": "Explore relational and NoSQL databases, advanced SQL queries, normalization, indexing, transactions, and data modeling techniques.",
-    "description_fr": "Explorez les bases de données relationnelles et NoSQL, les requêtes SQL avancées, la modélisation des données, la normalisation, l’indexation et la gestion des transactions.",
+    "name": "Advanced Database",
+    "name_fr": "Base de Données Avancée",
+    "description": "Maîtrisez les concepts avancés des bases de données, y compris l’optimisation, les transactions, la sécurité et les bases de données distribuées.",
+    "description_fr": "Maîtrisez les concepts avancés des bases de données, y compris l’optimisation, les transactions, la sécurité et les bases de données distribuées.",
     "about": {
-      "en": "This Database Systems course provides a deep understanding of both relational and NoSQL database technologies. You'll learn how to write complex SQL queries, design efficient schemas through normalization, use indexing to improve performance, and manage transactions for data integrity. The course also covers data modeling and introduces document-based, key-value, and column-family stores.",
-      "fr": "Ce cours sur les Systèmes de Bases de Données vous offre une compréhension approfondie des technologies relationnelles et NoSQL. Vous apprendrez à écrire des requêtes SQL complexes, à concevoir des schémas efficaces grâce à la normalisation, à utiliser l’indexation pour améliorer les performances et à gérer les transactions pour garantir l'intégrité des données. Le cours couvre également la modélisation des données et introduit les bases de données orientées documents, clés-valeurs et en colonnes."
+      "en": "This Advanced Database course covers complex topics like transaction management, query optimization, distributed databases, NoSQL systems, and security best practices.",
+      "fr": "Ce cours sur les bases de données avancées couvre des sujets complexes tels que la gestion des transactions, l’optimisation des requêtes, les bases de données distribuées, les systèmes NoSQL et les meilleures pratiques de sécurité."
     },
     "lessons": [
       {
         "id": "1",
-        "title": "Lesson 1: Introduction to Databases",
-        "title_fr": "Leçon 1: Introduction aux bases de données",
+        "title": "Lesson 1: Advanced SQL Queries",
+        "title_fr": "Leçon 1: Requêtes SQL Avancées",
         "video": "https://example.com/db_lesson1.mp4",
         "pdf": "https://example.com/db_lesson1.pdf",
         "completed": false
       },
       {
         "id": "2",
-        "title": "Lesson 2: Relational Databases and SQL",
-        "title_fr": "Leçon 2: Bases de données relationnelles et SQL",
+        "title": "Lesson 2: Transactions and Concurrency",
+        "title_fr": "Leçon 2: Transactions et Concurrence",
         "video": "https://example.com/db_lesson2.mp4",
         "pdf": "https://example.com/db_lesson2.pdf",
-        "completed": false
-      },
-      {
-        "id": "3",
-        "title": "Lesson 3: Advanced SQL Queries",
-        "title_fr": "Leçon 3: Requêtes SQL avancées",
-        "video": "https://example.com/db_lesson3.mp4",
-        "pdf": "https://example.com/db_lesson3.pdf",
-        "completed": false
-      },
-      {
-        "id": "4",
-        "title": "Lesson 4: Database Design and Normalization",
-        "title_fr": "Leçon 4: Conception de base de données et normalisation",
-        "video": "https://example.com/db_lesson4.mp4",
-        "pdf": "https://example.com/db_lesson4.pdf",
-        "completed": false
-      },
-      {
-        "id": "5",
-        "title": "Lesson 5: Indexing and Query Optimization",
-        "title_fr": "Leçon 5: Indexation et optimisation des requêtes",
-        "video": "https://example.com/db_lesson5.mp4",
-        "pdf": "https://example.com/db_lesson5.pdf",
-        "completed": false
-      },
-      {
-        "id": "6",
-        "title": "Lesson 6: Transactions and Concurrency Control",
-        "title_fr": "Leçon 6: Transactions et contrôle de concurrence",
-        "video": "https://example.com/db_lesson6.mp4",
-        "pdf": "https://example.com/db_lesson6.pdf",
-        "completed": false
-      },
-      {
-        "id": "7",
-        "title": "Lesson 7: NoSQL Databases (Document, Key-Value, Column)",
-        "title_fr": "Leçon 7: Bases de données NoSQL (document, clé-valeur, colonne)",
-        "video": "https://example.com/db_lesson7.mp4",
-        "pdf": "https://example.com/db_lesson7.pdf",
         "completed": false
       }
     ]
   },
-
   {
-    "id": "4",
-    "image": "/assets/CloudComputing.jpg",
-    "name": "Cloud Computing",
-    "name_fr": "Informatique en Nuage",
-    "description": "Gain practical knowledge of cloud services like AWS, Azure, and GCP, including containerization, microservices, and cloud architecture.",
-    "description_fr": "Acquérez des compétences pratiques sur les services cloud comme AWS, Azure ou GCP, et découvrez les architectures en microservices, la conteneurisation et les déploiements cloud.",
-    "description_ar": "تعلم المهارات العملية لخدمات السحابة مثل AWS و Azure و GCP، بما في ذلك الحاويات، والميكروخدمات، وهندسة السحابة.",
+    "id": "2",
+    "image": "/assets/Java.png",
+    "name": "Object-Oriented Programming: Java",
+    "name_fr": "Programmation Orientée Objet: Java",
+    "description": "Apprenez la programmation orientée objet avec Java, en comprenant l’héritage, le polymorphisme et la conception orientée objet.",
+    "description_fr": "Apprenez la programmation orientée objet avec Java, en comprenant l’héritage, le polymorphisme et la conception orientée objet.",
     "about": {
-      "en": "This Cloud Computing course introduces you to modern cloud platforms such as AWS, Azure, and Google Cloud Platform (GCP). You'll learn about Infrastructure as a Service (IaaS), Platform as a Service (PaaS), containerization with Docker, orchestration with Kubernetes, microservice architecture, and cloud-native deployments. The course is designed to help you understand real-world cloud use cases, optimize resource management, and prepare for cloud certifications.",
-      "fr": "Ce cours sur l’informatique en nuage vous initie aux plateformes cloud modernes comme AWS, Azure et Google Cloud Platform (GCP). Vous apprendrez les concepts de l’infrastructure en tant que service (IaaS), de la plateforme en tant que service (PaaS), de la conteneurisation avec Docker, de l’orchestration avec Kubernetes, de l’architecture microservices et des déploiements cloud natifs. Le cours vous aide à comprendre les cas d’usage réels du cloud, à optimiser la gestion des ressources et à vous préparer aux certifications cloud."
+      "en": "This course teaches OOP concepts using Java. You’ll learn about classes, objects, inheritance, polymorphism, interfaces, and design patterns.",
+      "fr": "Ce cours enseigne les concepts de la POO avec Java. Vous apprendrez les classes, objets, héritage, polymorphisme, interfaces et les modèles de conception."
     },
     "lessons": [
       {
         "id": "1",
-        "title": "Lesson 1: Introduction to Cloud Computing",
-        "title_fr": "Leçon 1: Introduction à l'informatique en nuage",
-        "video": "https://example.com/cloud_lesson1.mp4",
-        "pdf": "https://example.com/cloud_lesson1.pdf",
+        "title": "Lesson 1: Java Basics and Classes",
+        "title_fr": "Leçon 1: Bases de Java et Classes",
+        "video": "https://example.com/java_lesson1.mp4",
+        "pdf": "https://example.com/java_lesson1.pdf",
         "completed": false
-      },
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "image": "/assets/XML.png",
+    "name": "XML Technology",
+    "name_fr": "Technologie XML",
+    "description": "Découvrez XML, ses structures, schémas et transformations avec XSLT.",
+    "description_fr": "Découvrez XML, ses structures, schémas et transformations avec XSLT.",
+    "about": {
+      "en": "This course covers XML fundamentals, validation (DTD, XSD), XPath, XSLT, and integration with web technologies.",
+      "fr": "Ce cours couvre les bases de XML, la validation (DTD, XSD), XPath, XSLT et l’intégration aux technologies web."
+    },
+    "lessons": [
       {
-        "id": "2",
-        "title": "Lesson 2: IaaS, PaaS, and SaaS Models",
-        "title_fr": "Leçon 2: Modèles IaaS, PaaS et SaaS",
-        "video": "https://example.com/cloud_lesson2.mp4",
-        "pdf": "https://example.com/cloud_lesson2.pdf",
+        "id": "1",
+        "title": "Lesson 1: XML Basics",
+        "title_fr": "Leçon 1: Bases de XML",
+        "video": "https://example.com/xml_lesson1.mp4",
+        "pdf": "https://example.com/xml_lesson1.pdf",
         "completed": false
-      },
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "image": "/assets/PHP.png",
+    "name": "PHP/MySQL Programming",
+    "name_fr": "Programmation PHP/MySQL",
+    "description": "Apprenez à développer des applications web dynamiques avec PHP et MySQL.",
+    "description_fr": "Apprenez à développer des applications web dynamiques avec PHP et MySQL.",
+    "about": {
+      "en": "In this course, you’ll learn server-side programming with PHP and how to manage databases with MySQL.",
+      "fr": "Dans ce cours, vous apprendrez la programmation côté serveur avec PHP et la gestion des bases de données avec MySQL."
+    },
+    "lessons": [
       {
-        "id": "3",
-        "title": "Lesson 3: AWS, Azure, and GCP Overview",
-        "title_fr": "Leçon 3: Vue d'ensemble d'AWS, Azure et GCP",
-        "video": "https://example.com/cloud_lesson3.mp4",
-        "pdf": "https://example.com/cloud_lesson3.pdf",
+        "id": "1",
+        "title": "Lesson 1: PHP Basics",
+        "title_fr": "Leçon 1: Bases de PHP",
+        "video": "https://example.com/php_lesson1.mp4",
+        "pdf": "https://example.com/php_lesson1.pdf",
         "completed": false
-      },
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "image": "/assets/English.jpeg",
+    "name": "English Language",
+    "name_fr": "Langue Anglaise",
+    "description": "Développez vos compétences en langue anglaise pour la communication professionnelle et académique.",
+    "description_fr": "Développez vos compétences en langue anglaise pour la communication professionnelle et académique.",
+    "about": {
+      "en": "This English course improves your reading, writing, listening, and speaking skills for daily and professional contexts.",
+      "fr": "Ce cours d’anglais améliore vos compétences en lecture, écriture, écoute et expression orale pour des contextes quotidiens et professionnels."
+    },
+    "lessons": [
       {
-        "id": "4",
-        "title": "Lesson 4: Virtual Machines and Storage",
-        "title_fr": "Leçon 4: Machines virtuelles et stockage",
-        "video": "https://example.com/cloud_lesson4.mp4",
-        "pdf": "https://example.com/cloud_lesson4.pdf",
+        "id": "1",
+        "title": "Lesson 1: Grammar and Vocabulary",
+        "title_fr": "Leçon 1: Grammaire et Vocabulaire",
+        "video": "https://example.com/eng_lesson1.mp4",
+        "pdf": "https://example.com/eng_lesson1.pdf",
         "completed": false
-      },
+      }
+    ]
+  },
+  {
+    "id": "6",
+    "image": "/assets/AppDev.jpg",
+    "name": "Mobile Application Development",
+    "name_fr": "Développement d'Application Mobile",
+    "description": "Créez des applications mobiles pour Android et iOS en utilisant les technologies modernes.",
+    "description_fr": "Créez des applications mobiles pour Android et iOS en utilisant les technologies modernes.",
+    "about": {
+      "en": "Learn to build cross-platform mobile apps using frameworks like Flutter or React Native.",
+      "fr": "Apprenez à créer des applications mobiles multiplateformes avec des frameworks comme Flutter ou React Native."
+    },
+    "lessons": [
       {
-        "id": "5",
-        "title": "Lesson 5: Docker and Containerization",
-        "title_fr": "Leçon 5: Docker et conteneurisation",
-        "video": "https://example.com/cloud_lesson5.mp4",
-        "pdf": "https://example.com/cloud_lesson5.pdf",
+        "id": "1",
+        "title": "Lesson 1: Introduction to Mobile Development",
+        "title_fr": "Leçon 1: Introduction au Développement Mobile",
+        "video": "https://example.com/mobile_lesson1.mp4",
+        "pdf": "https://example.com/mobile_lesson1.pdf",
         "completed": false
-      },
+      }
+    ]
+  },
+  {
+    "id": "7",
+    "image": "/assets/WebDevelopment.jpg",
+    "name": "Advanced Web",
+    "name_fr": "Web Avancée",
+    "description": "Approfondissez vos compétences en développement web avec des techniques modernes avancées.",
+    "description_fr": "Approfondissez vos compétences en développement web avec des techniques modernes avancées.",
+    "about": {
+      "en": "This course covers advanced frontend and backend development, security, performance optimization, and deployment pipelines.",
+      "fr": "Ce cours couvre le développement frontend et backend avancé, la sécurité, l’optimisation des performances et les pipelines de déploiement."
+    },
+    "lessons": [
       {
-        "id": "6",
-        "title": "Lesson 6: Kubernetes and Orchestration",
-        "title_fr": "Leçon 6: Kubernetes et orchestration",
-        "video": "https://example.com/cloud_lesson6.mp4",
-        "pdf": "https://example.com/cloud_lesson6.pdf",
-        "completed": false
-      },
-      {
-        "id": "7",
-        "title": "Lesson 7: Cloud Security and Deployment Best Practices",
-        "title_fr": "Leçon 7: Sécurité et bonnes pratiques de déploiement cloud",
-        "video": "https://example.com/cloud_lesson7.mp4",
-        "pdf": "https://example.com/cloud_lesson7.pdf",
+        "id": "1",
+        "title": "Lesson 1: Advanced Frontend Techniques",
+        "title_fr": "Leçon 1: Techniques Frontend Avancées",
+        "video": "https://example.com/advweb_lesson1.mp4",
+        "pdf": "https://example.com/advweb_lesson1.pdf",
         "completed": false
       }
     ]

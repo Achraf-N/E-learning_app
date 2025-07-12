@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TranslateIcon } from '../../INDEX';
 import LogoImg from './../../Assets/MenDarkLogo.jpg';
 
 const Navbar = () => {
   const [nav, setNav] = useState(true);
+  const navigate = useNavigate();
 
   const navHandle = () => {
     setNav(!nav);
   };
 
   const { t } = useTranslation();
+
+  // ✅ Check if user is logged in
+  const isLoggedIn = !!localStorage.getItem('access_token');
+
+  // ✅ Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    navigate('/Login');
+  };
 
   return (
     <>
@@ -50,25 +60,33 @@ const Navbar = () => {
 
             <div className="md:flex hidden">
               <div>
-                <Link to="/Login">
+                {isLoggedIn ? (
                   <div
-                    className="border-2 px-[0.5rem] py-2 lg:px-4 rounded duration-300 hover:border-second-color-opacity"
-                    type="submit"
+                    onClick={handleLogout}
+                    className="border-2 px-[0.5rem] py-2 lg:px-4 rounded duration-300 hover:border-second-color-opacity cursor-pointer"
+                    type="button"
                   >
-                    {t('login_nav')}
+                    {t('logout') || 'Logout'}
                   </div>
-                </Link>
+                ) : (
+                  <Link to="/Login">
+                    <div
+                      className="border-2 px-[0.5rem] py-2 lg:px-4 rounded duration-300 hover:border-second-color-opacity"
+                      type="button"
+                    >
+                      {t('login_nav')}
+                    </div>
+                  </Link>
+                )}
               </div>
-
               <div>
-                <Link to="/Sign-up">
-                  <div
-                    className="bg-second-color-opacity border-2 border-second-color-opacity px-[0.5rem] py-2 lg:px-4 duration-300 text-main-color ltr:ml-4 rtl:mr-4 rounded  hover:border-second-color hover:bg-second-color"
-                    type="submit"
-                  >
-                    {t('Sign-up_nav')}
-                  </div>
-                </Link>
+                {!isLoggedIn && (
+                  <Link to="/Sign-up">
+                    <div className="bg-second-color-opacity border-2 border-second-color-opacity px-[0.5rem] py-2 lg:px-4 duration-300 text-main-color ltr:ml-4 rtl:mr-4 rounded hover:border-second-color hover:bg-second-color">
+                      {t('Sign-up_nav')}
+                    </div>
+                  </Link>
+                )}
               </div>
 
               <div>
@@ -132,22 +150,35 @@ const Navbar = () => {
             </div>
             <div className="md:flex block">
               <div>
-                <Link to="/Login">
+                {isLoggedIn ? (
                   <div
-                    onClick={navHandle}
-                    className="border-2 px-[0.5rem] py-2 lg:px-4 rounded text-center duration-300 hover:border-second-color-opacity"
-                    type="submit"
+                    onClick={() => {
+                      handleLogout();
+                      navHandle();
+                    }}
+                    className="border-2 px-[0.5rem] py-2 lg:px-4 rounded text-center duration-300 hover:border-second-color-opacity cursor-pointer"
+                    type="button"
                   >
-                    {t('login_nav')}
+                    {t('logout') || 'Logout'}
                   </div>
-                </Link>
+                ) : (
+                  <Link to="/Login">
+                    <div
+                      onClick={navHandle}
+                      className="border-2 px-[0.5rem] py-2 lg:px-4 rounded text-center duration-300 hover:border-second-color-opacity"
+                      type="button"
+                    >
+                      {t('login_nav')}
+                    </div>
+                  </Link>
+                )}
               </div>
 
               <div>
                 <Link to="/Sign-up">
                   <div
                     onClick={navHandle}
-                    className="bg-second-color-opacity border-2 border-second-color-opacity px-[0.5rem] py-2 duration-300 text-main-color text-center rounded  hover:border-second-color hover:bg-second-color"
+                    className="bg-second-color-opacity border-2 border-second-color-opacity px-[0.5rem] py-2 duration-300 text-main-color text-center rounded hover:border-second-color hover:bg-second-color"
                     type="submit"
                   >
                     {t('Sign-up_nav')}

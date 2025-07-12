@@ -5,6 +5,7 @@ import App from './App';
 import './index.css';
 import './i18n';
 import Loader from './Components/Ui/Loading/Loader';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const loadingMarkup = (
   <div className="py-4 text-center">
@@ -15,9 +16,11 @@ const loadingMarkup = (
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Suspense fallback={loadingMarkup}>
     <React.StrictMode>
-      <Router>
-        <App />
-      </Router>
+      <GoogleOAuthProvider clientId="1005375938088-8arq43pm3d5qkr19q9ig04ml07totbv5.apps.googleusercontent.com">
+        <Router>
+          <App />
+        </Router>
+      </GoogleOAuthProvider>
     </React.StrictMode>
   </Suspense>
 );
