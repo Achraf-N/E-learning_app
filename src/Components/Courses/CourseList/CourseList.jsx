@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import CoursesData from '../data/Courses.json';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { Link } from 'react-router-dom';
@@ -9,42 +8,46 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
-/*************  ✨ Windsurf Command ⭐  *************/
-/**
- * CoursList Component
- * 
- * This component renders a list of courses in a responsive Swiper carousel format. 
- * It adapts the course details based on the user's current language preference.
- * 
- * The component uses the i18next translation library to provide translations for
- * course names and descriptions in Arabic and French, falling back to the default
- * language if neither is set.
- * 
- * The component renders a Swiper carousel that displays course images, names, and 
- * descriptions, and includes a link to learn more about each course.
- * 
- * Dependencies:
- * - react-router-dom for navigation links
- * - swiper/react for rendering the Swiper carousel
- * - react-lazy-load-image-component for lazy loading images
- * - i18next for language translations
- */
-
-/*******  875f0955-9622-434a-b20c-c511f953500a  *******/
 const CoursList = () => {
   const { t, i18n } = useTranslation();
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const courses = CoursesData.map((course) => {
-    if (i18n.language == 'ar') {
-      return {
-        id: course.id,
-        image: course.image,
-        name: course.name_ar,
-        description: course.description_ar,
-      };
-    }
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/modules/full');
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
+        }
+        const data = await response.json();
 
-    if (i18n.language == 'fr') {
+        // Transform the API data to match your expected format
+        const transformedData = data.map((course) => ({
+          id: course.id,
+          image: course.image,
+          name: course.name || course.title, // Use name if available, otherwise title
+          name_fr: course.name_fr,
+          name_ar: null, // Add if your API provides Arabic names
+          description: course.description,
+          description_fr: course.description_fr,
+          description_ar: null, // Add if your API provides Arabic descriptions
+        }));
+
+        setCourses(transformedData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+  const getLocalizedCourse = (course) => {
+    console.log(course);
+    if (i18n.language === 'fr') {
       return {
         id: course.id,
         image: course.image,
@@ -52,8 +55,22 @@ const CoursList = () => {
         description: course.description_fr,
       };
     }
-    return course;
-  });
+
+    return {
+      id: course.id,
+      image: course.image,
+      name: course.name,
+      description: course.description,
+    };
+  };
+
+  if (loading) {
+    return <div>Loading courses...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <>
@@ -74,11 +91,9 @@ const CoursList = () => {
                 200: {
                   slidesPerView: 1,
                 },
-
                 550: {
                   slidesPerView: 2,
                 },
-
                 1023: {
                   slidesPerView: 3,
                 },
@@ -87,28 +102,30 @@ const CoursList = () => {
               grabCursor={true}
               className="mySwiper"
             >
-              {courses.map(({ id, image, name, description }) => {
+              {courses.map((course) => {
+                const localizedCourse = getLocalizedCourse(course);
                 return (
                   <SwiperSlide
-                    key={id}
+                    key={localizedCourse.id}
                     className="md:mt-16 mt-4 pb-16 rounded border shadow"
                   >
                     <div>
                       <LazyLoadImage
-                        src={image}
+                        src={localizedCourse.image}
                         effect="blur"
-                        alt="test"
+                        alt={localizedCourse.name}
                         className="w-full aspect-[3/2] object-fill"
-                      ></LazyLoadImage>
-
+                      />
                       <div>
-                        <h6 className="my-4 font-semibold">{name}</h6>
+                        <h6 className="my-4 font-semibold">
+                          {localizedCourse.name}
+                        </h6>
                         <p className="text-base w-10/12 my-0 mx-auto">
-                          {description}
+                          {localizedCourse.description}
                         </p>
                       </div>
                       <div>
-                        <Link to={`/course-details/${id}`}>
+                        <Link to={`/course-details/${localizedCourse.id}`}>
                           <button type="submit">{t('learn_more')}</button>
                         </Link>
                       </div>
