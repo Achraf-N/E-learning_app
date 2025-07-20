@@ -8,6 +8,14 @@ import { useTranslation } from 'react-i18next';
 import CourseLessons from '../CourseLessons/CourseLessons';
 import LessonBar from './LessonBar';
 import { useEffect, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
+const token = localStorage.getItem('access_token');
+let userId = null;
+
+if (token) {
+  const decoded = jwtDecode(token); // decode the token
+  userId = decoded.sub; // depends on your backend
+}
 
 const CourseDetails = () => {
   const { t } = useTranslation();
@@ -57,6 +65,7 @@ const CourseDetails = () => {
             lessons={course.lessons}
             courseTitle={course.name}
             about={course.about}
+            userId={userId}
           />
         </div>
         <div className="flex flex-wrap justify-center">
