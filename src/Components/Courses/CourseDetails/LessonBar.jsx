@@ -65,7 +65,15 @@ const LessonBar = ({ lessons, courseTitle, about, userId }) => {
 
       console.log('handleLessonClick triggered for lesson:', lesson.id);
 
+      const hasProgressRecord = lessonStates.some((l) => l.id === lesson.id);
+
+      if (hasProgressRecord) {
+        // Ne fait rien (pas d’appel API)
+        console.log('Progression déjà existante, pas de POST.');
+        return;
+      }
       // Just do fetch directly without timeout or try-catch for now
+
       console.log('Sending POST request...');
 
       fetch('http://localhost:8080/user-lesson-progress/', {
@@ -92,7 +100,7 @@ const LessonBar = ({ lessons, courseTitle, about, userId }) => {
           console.error('Fetch error:', e);
         });
     },
-    [token, setLessonStates]
+    [token, setLessonStates, lessonStates]
   );
 
   return (
