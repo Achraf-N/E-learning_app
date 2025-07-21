@@ -1,79 +1,88 @@
-import React from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import CourseData from './../data/Courses.json';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
-import { Title } from '../../../GeneralFunctions/title';
 import { useTranslation } from 'react-i18next';
-import CourseLessons from '../CourseLessons/CourseLessons';
 import LessonBar from './LessonBar';
-import { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
-const token = localStorage.getItem('access_token');
-let userId = null;
-
-if (token) {
-  const decoded = jwtDecode(token); // decode the token
-  userId = decoded.sub; // depends on your backend
-}
+import LessonContent from './LessonContent';
 
 const CourseDetails = () => {
   const { t } = useTranslation();
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
+  const [lessonStates, setLessonStates] = useState([]);
+  const [currentView, setCurrentView] = useState('about');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const token = localStorage.getItem('access_token');
+  const userId = token ? jwtDecode(token).sub : null;
 
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
         const response = await fetch('http://localhost:8080/modules/full');
-        if (!response.ok) {
-          throw new Error('Failed to fetch course data');
-        }
         const modules = await response.json();
         const selectedCourse = modules.find((module) => module.id === courseId);
         setCourse(selectedCourse);
       } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        console.error(err);
       }
     };
 
     fetchCourseData();
   }, [courseId]);
 
-  if (loading) {
-    return <div>{t('loading')}</div>;
-  }
+  useEffect(() => {
+    const loadProgress = async () => {
+      if (!course?.lessons || !token) return;
+      const response = await fetch(
+        'http://localhost:8080/user-lesson-progress/all',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await response.json();
+      const accessedLessons = course.lessons.map((lesson) => {
+        const found = data.find((p) => p.lesson_id === lesson.id);
+        return { ...lesson, completed: found?.completed || false };
+      });
+      setLessonStates(accessedLessons);
+    };
 
-  if (error) {
-    return <div>{t('error_loading_course')}</div>;
-  }
+    loadProgress();
+  }, [course, token]);
 
-  if (!course) {
-    return <div>{t('course_not_found')}</div>;
-  }
+  const { completedCount, progress } = useMemo(() => {
+    const completedCount = lessonStates.filter((l) => l.completed).length;
+    const progress = course?.lessons?.length
+      ? Math.round((completedCount / course.lessons.length) * 100)
+      : 0;
+    return { completedCount, progress };
+  }, [lessonStates, course]);
+
+  const lessonContent = useMemo(() => {
+    return course?.lessons?.find((l) => l.id === currentView);
+  }, [currentView, course]);
+
+  if (!course) return <div>{t('loading')}</div>;
 
   return (
-    <div>
-      <div className="container">
-        <div className="mt-20 mb-16 md:mb-32 text-center">
-          <h1 className="font-bold">{t('lessons')}</h1>
-          <LessonBar
-            lessons={course.lessons}
-            courseTitle={course.name}
-            about={course.about}
-            userId={userId}
-          />
-        </div>
-        <div className="flex flex-wrap justify-center">
-          <div className="w-full md:w-2/3 lg:w-2/3 xl:w-2/3 p-4">
-            <CourseLessons />
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-row mt-20 px-6 items-start">
+      <LessonBar
+        lessons={course.lessons}
+        courseTitle={course.name}
+        progress={progress}
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        lessonStates={lessonStates}
+      />
+      <LessonContent
+        currentView={currentView}
+        lessonContent={lessonContent}
+        about={course.about}
+        token={token}
+      />
     </div>
   );
 };
