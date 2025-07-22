@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Quiz from './Quiz'; // import your Quiz component
 import VideoPlayer from './VideoPlayer';
 
@@ -8,19 +8,51 @@ const LessonContent = ({
   about,
   lessonId,
   token,
-  onNextLesson,
-  hasNextLesson,
   onQuizComplete,
+  hasNextLesson,
+  lessonProgress,
+  onNextLesson,
 }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizPassed, setQuizPassed] = useState(false);
   const [showNextButton, setShowNextButton] = useState(false);
+  const [lastScore, setLastScore] = useState(null);
+  const [videoWatched, setVideoWatched] = useState(false);
 
-  const handleQuizComplete = (score) => {
-    const passed = score >= 70;
+  useEffect(() => {
+    if (lessonProgress?.video_watched !== undefined) {
+      console.log(
+        'lessonProgress.video_watched:',
+        lessonProgress?.video_watched
+      );
+      setVideoWatched(lessonProgress.video_watched);
+    }
+  }, [lessonProgress]);
+
+  useEffect(() => {
+    if (!lessonProgress) return;
+    if (lessonProgress.score !== undefined && lessonProgress.score >= 3) {
+      console.log('lessonProgress.score:', lessonProgress.score);
+      setLastScore(lessonProgress.score);
+      setQuizPassed(true);
+      setShowNextButton(true);
+    } else {
+      setLastScore(null);
+      setQuizPassed(false);
+      setShowNextButton(false);
+    }
+  }, [lessonProgress]);
+
+  const handleQuizComplete = async (score) => {
+    console.log('Quiz completed with score:', score);
+    const passed = score >= 3;
+    setLastScore(score);
     setQuizPassed(passed);
     setShowNextButton(passed && hasNextLesson);
-    onQuizComplete?.(score);
+    if (passed) {
+      await onQuizComplete(lessonContent.id, score); // pass lesson id to parent
+      //setQuizStarted(false);
+    }
   };
 
   const handleNextLesson = () => {
@@ -51,10 +83,16 @@ const LessonContent = ({
 
       {!quizStarted ? (
         <>
-          <VideoPlayer
-            videoUrl={lessonContent.video}
-            onStartQuiz={() => setQuizStarted(true)}
-          />
+          {lessonContent.video ? (
+            <VideoPlayer
+              videoUrl={lessonContent.video}
+              onStartQuiz={() => setQuizStarted(true)}
+              videoWatched={videoWatched}
+              key={lessonContent.id}
+            />
+          ) : (
+            <p>No video available for this lesson.</p>
+          )}
           {quizPassed && showNextButton && (
             <button
               onClick={handleNextLesson}
@@ -66,9 +104,16 @@ const LessonContent = ({
         </>
       ) : (
         <Quiz
-          lessonId={lessonId}
-          token={token}
           onComplete={handleQuizComplete}
+          onExitQuiz={() => setQuizStarted(false)}
+          onRetake={() => {
+            setQuizStarted(true);
+            setQuizPassed(false);
+            setShowNextButton(false);
+          }}
+          hasPassed={quizPassed}
+          savedScore={quizPassed ? lastScore : null}
+          onNextLesson={handleNextLesson}
         />
       )}
 

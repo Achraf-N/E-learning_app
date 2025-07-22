@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const sampleQuiz = {
   title: 'Sample Quiz',
@@ -46,7 +46,14 @@ const sampleQuiz = {
   ],
 };
 
-export default function Quiz() {
+export default function Quiz({
+  onComplete,
+  onExitQuiz,
+  onRetake,
+  savedScore = null,
+  hasPassed = false,
+  onNextLesson,
+}) {
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [score, setScore] = useState(0);
@@ -55,12 +62,20 @@ export default function Quiz() {
   const questionCount = sampleQuiz.questions.length;
   const currentQuestion = sampleQuiz.questions[currentQ];
 
+  useEffect(() => {
+    // If savedScore is passed (quiz retaken), show results immediately
+    if (savedScore !== null) {
+      setShowResults(true);
+      setScore(savedScore);
+    }
+  }, [savedScore]);
+
   const handleOptionClick = (index) => {
     setSelectedOption(index);
   };
 
   const handleNext = () => {
-    if (selectedOption === null) return; // prevent next if no option selected
+    if (selectedOption === null) return;
 
     if (selectedOption === currentQuestion.answerIndex) {
       setScore((prev) => prev + 1);
@@ -72,6 +87,11 @@ export default function Quiz() {
       setCurrentQ(currentQ + 1);
     } else {
       setShowResults(true);
+      if (onComplete) {
+        onComplete(
+          score + (selectedOption === currentQuestion.answerIndex ? 1 : 0)
+        );
+      }
     }
   };
 
@@ -80,10 +100,17 @@ export default function Quiz() {
     setSelectedOption(null);
     setScore(0);
     setShowResults(false);
+    if (onRetake) onRetake();
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-md shadow-md font-sans">
+    <div className="relative z-10 max-w-xl mx-auto p-6 bg-white rounded-md shadow-md font-sans">
+      <button
+        onClick={onExitQuiz}
+        className="mb-4 px-4 py-2 bg-gray-200 text-black rounded hover:bg-gray-300"
+      >
+        ← Back to Video
+      </button>
       <h2 className="text-2xl font-bold mb-6 text-center">
         {sampleQuiz.title}
       </h2>
@@ -150,12 +177,38 @@ export default function Quiz() {
               {score} / {questionCount}
             </span>
           </p>
-          <button
-            onClick={handleRestart}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Restart Quiz
-          </button>
+
+          {hasPassed ? (
+            <>
+              <p className="text-green-600 font-semibold mb-4">
+                🎉 You passed the quiz!
+              </p>
+              <button
+                onClick={handleRestart}
+                className="mr-4 px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+              >
+                Retake Quiz
+              </button>
+              <button
+                onClick={onNextLesson}
+                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                Next Lesson →
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-red-600 font-semibold mb-4">
+                Sorry, you did not pass.
+              </p>
+              <button
+                onClick={handleRestart}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Retake Quiz
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

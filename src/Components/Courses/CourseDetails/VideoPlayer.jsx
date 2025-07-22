@@ -4,10 +4,12 @@ import PropTypes from 'prop-types';
 const VideoPlayer = ({
   videoUrl,
   onStartQuiz,
-  unlockThreshold = 0.01, 
+  videoWatched,
+  unlockThreshold = 0.01,
   storageKey = 'videoWatchedSegments',
   className = '',
   playerOptions = {},
+  
 }) => {
   const videoRef = useRef(null);
   const progressBarRef = useRef(null);
@@ -17,7 +19,11 @@ const VideoPlayer = ({
   const [isLoading, setIsLoading] = useState(true);
   const [duration, setDuration] = useState(0);
 
-  // Track watched segments in real-time
+  useEffect(() => {
+    console.log('VideoPlayer mounted, videoUrl:', videoUrl);
+    return () => console.log('VideoPlayer unmounted');
+  }, [videoUrl]);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -70,6 +76,7 @@ const VideoPlayer = ({
 
   // Check if quiz should be unlocked
   const isQuizUnlocked = () => {
+    if (videoWatched) return true;
     if (!duration) return false;
     const watchedDuration = calculateWatchedDuration();
     return watchedDuration >= duration * unlockThreshold;
@@ -116,7 +123,7 @@ const VideoPlayer = ({
     onStartQuiz();
   };
 
-  // Load/save watched segments from storage
+  // Load once on mount
   useEffect(() => {
     try {
       const savedSegments = localStorage.getItem(storageKey);
@@ -126,15 +133,16 @@ const VideoPlayer = ({
     } catch (error) {
       console.error('Error loading watched segments:', error);
     }
-
-    return () => {
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(watchedSegments));
-      } catch (error) {
-        console.error('Error saving watched segments:', error);
-      }
-    };
   }, [storageKey]);
+
+  // Save whenever watchedSegments change
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(watchedSegments));
+    } catch (error) {
+      console.error('Error saving watched segments:', error);
+    }
+  }, [watchedSegments, storageKey]);
 
   return (
     <div className={`flex flex-col ${className}`}>

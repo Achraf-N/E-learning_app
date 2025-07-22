@@ -15,8 +15,43 @@ const CourseDetails = () => {
   const [lessonStates, setLessonStates] = useState([]);
   const [currentView, setCurrentView] = useState('about');
   const [loading, setLoading] = useState(true);
+  const [isProgressLoading, setIsProgressLoading] = useState(true);
+
   const token = localStorage.getItem('access_token');
   const userId = token ? jwtDecode(token).sub : null;
+
+  const updateLessonProgress = async (lessonId) => {
+    console.log('updateLessonProgress function defined, lessonId:', lessonId);
+    try {
+      const response = await fetch(
+        `http://localhost:8080/user-lesson-progress/?lesson_id=${lessonId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            completed: true, // only the body content matching UserLessonProgressUpdate
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update progress');
+      }
+      const updatedProgress = await response.json();
+
+      // Update lessonStates locally to mark lesson as completed
+      setLessonStates((prevStates) =>
+        prevStates.map((lesson) =>
+          lesson.id === lessonId ? { ...lesson, completed: true } : lesson
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -36,18 +71,34 @@ const CourseDetails = () => {
   useEffect(() => {
     const loadProgress = async () => {
       if (!course?.lessons || !token) return;
-      const response = await fetch(
-        'http://localhost:8080/user-lesson-progress/all',
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await response.json();
-      const accessedLessons = course.lessons.map((lesson) => {
-        const found = data.find((p) => p.lesson_id === lesson.id);
-        return { ...lesson, completed: found?.completed || false };
-      });
-      setLessonStates(accessedLessons);
+
+      setIsProgressLoading(true); // Start loading progress
+
+      try {
+        const response = await fetch(
+          'http://localhost:8080/user-lesson-progress/all',
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await response.json();
+
+        const accessedLessons = course.lessons.map((lesson) => {
+          const found = data.find((p) => p.lesson_id === lesson.id);
+          return {
+            ...lesson,
+            completed: found?.completed || false,
+            score: found?.score ?? null,
+            video_watched: found?.video_watched ?? false,
+          };
+        });
+
+        setLessonStates(accessedLessons);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsProgressLoading(false); // End loading
+      }
     };
 
     loadProgress();
@@ -64,9 +115,15 @@ const CourseDetails = () => {
   const lessonContent = useMemo(() => {
     return course?.lessons?.find((l) => l.id === currentView);
   }, [currentView, course]);
+  const lessonProgress = useMemo(() => {
+    return lessonStates.find((l) => l.id === currentView);
+  }, [lessonStates, currentView]);
+  if (!course || isProgressLoading)
+    return <div>{t('loading') || 'Loading...'}</div>;
 
-  if (!course) return <div>{t('loading')}</div>;
-
+  const lessonIndex = course.lessons.findIndex((l) => l.id === currentView);
+  //const hasNextLesson = lessonIndex < course.lessons.length - 1;
+  const hasNextLesson = true;
   return (
     <div className="flex flex-row mt-20 px-6 items-start">
       <LessonBar
@@ -82,6 +139,9 @@ const CourseDetails = () => {
         lessonContent={lessonContent}
         about={course.about}
         token={token}
+        onQuizComplete={updateLessonProgress}
+        hasNextLesson={hasNextLesson}
+        lessonProgress={lessonProgress}
       />
     </div>
   );
