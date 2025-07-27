@@ -47,7 +47,15 @@ const App = () => {
           */}
           <Route path="/our-courses" element={<Courses />} />
           <Route
-            path="/course-details/:courseId/*"
+            path="/course-details/:courseId"
+            element={
+              <PrivateRoute>
+                <CourseDetails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/course-details/:courseId/lesson/:lessonId"
             element={
               <PrivateRoute>
                 <CourseDetails />
