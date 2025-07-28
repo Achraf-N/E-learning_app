@@ -11,6 +11,7 @@ const TeachersDetails = lazy(() =>
 const PrivateRoute = lazy(() =>
   import('./Components/PrivateRoute/PrivateRoute')
 );
+const AdminRoute = lazy(() => import('./Components/PrivateRoute/AdminRoute'));
 const AboutUs = lazy(() => import('./Components/About-Us/Home'));
 const SignUp = lazy(() => import('./Components/SignUp/SignUp'));
 const Login = lazy(() => import('./Components/Login/Login'));
@@ -28,6 +29,10 @@ const CourseDetails = lazy(() =>
 const VerifyEmail = lazy(() => import('./Components/Verify/verify-email'));
 const Error = lazy(() => import('./Components/404Error/Error'));
 const Up = lazy(() => import('./Components/Ui/Up/Up'));
+const AdminDashboard = lazy(() => import('./Components/Admin/AdminDashboard'));
+const VimeoUploader = lazy(() => import('./Components/Admin/VimeoUploader'));
+const TestAuth = lazy(() => import('./Components/Admin/TestAuth'));
+const QuickTest = lazy(() => import('./Components/Admin/QuickTest'));
 
 const App = () => {
   return (
@@ -68,6 +73,112 @@ const App = () => {
           <Route path="/Sign-up" element={<SignUp />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/test-auth" element={<TestAuth />} />
+          <Route path="/quick-test" element={<QuickTest />} />
+          <Route path="/quick-test" element={<QuickTest />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute allowedRoles={['admin', 'teacher']}>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/video-upload"
+            element={
+              <AdminRoute allowedRoles={['admin', 'teacher']}>
+                <VimeoUploader />
+              </AdminRoute>
+            }
+          />
+          {/* Admin-only routes */}
+          <Route
+            path="/admin/users"
+            element={
+              <AdminRoute allowedRoles={['admin']}>
+                <div className="min-h-screen bg-gray-50 py-8">
+                  <div className="max-w-7xl mx-auto px-4">
+                    <h1 className="text-3xl font-bold text-gray-900">
+                      User Management
+                    </h1>
+                    <p className="text-gray-600 mt-2">
+                      Manage students and teachers (Coming Soon)
+                    </p>
+                  </div>
+                </div>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/courses"
+            element={
+              <AdminRoute allowedRoles={['admin']}>
+                <div className="min-h-screen bg-gray-50 py-8">
+                  <div className="max-w-7xl mx-auto px-4">
+                    <h1 className="text-3xl font-bold text-gray-900">
+                      Course Management
+                    </h1>
+                    <p className="text-gray-600 mt-2">
+                      Manage all courses (Coming Soon)
+                    </p>
+                  </div>
+                </div>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/courses/new"
+            element={
+              <AdminRoute allowedRoles={['admin']}>
+                <div className="min-h-screen bg-gray-50 py-8">
+                  <div className="max-w-7xl mx-auto px-4">
+                    <h1 className="text-3xl font-bold text-gray-900">
+                      Create New Course
+                    </h1>
+                    <p className="text-gray-600 mt-2">
+                      Add a new course to the platform (Coming Soon)
+                    </p>
+                  </div>
+                </div>
+              </AdminRoute>
+            }
+          />
+          {/* Teacher-specific routes */}
+          <Route
+            path="/teacher/students"
+            element={
+              <AdminRoute allowedRoles={['teacher']}>
+                <div className="min-h-screen bg-gray-50 py-8">
+                  <div className="max-w-7xl mx-auto px-4">
+                    <h1 className="text-3xl font-bold text-gray-900">
+                      My Students
+                    </h1>
+                    <p className="text-gray-600 mt-2">
+                      View your students' progress (Coming Soon)
+                    </p>
+                  </div>
+                </div>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/teacher/assignments"
+            element={
+              <AdminRoute allowedRoles={['teacher']}>
+                <div className="min-h-screen bg-gray-50 py-8">
+                  <div className="max-w-7xl mx-auto px-4">
+                    <h1 className="text-3xl font-bold text-gray-900">
+                      Assignments
+                    </h1>
+                    <p className="text-gray-600 mt-2">
+                      Create and grade assignments (Coming Soon)
+                    </p>
+                  </div>
+                </div>
+              </AdminRoute>
+            }
+          />
           <Route path="*" element={<Error />} />
         </Routes>
         <Up />

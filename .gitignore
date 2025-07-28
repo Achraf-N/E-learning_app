@@ -22,3 +22,40 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# API keys and sensitive configuration
+**/config/secrets.js
+**/config/keys.js
+vimeo_credentials.json
+backend_config.json
+
+# Development and testing files
+*.test.local
+coverage/
+.nyc_output/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Build files
+build/
+dist/
+out/
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
