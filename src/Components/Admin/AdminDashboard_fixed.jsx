@@ -15,57 +15,53 @@ const AdminDashboard = () => {
   const [recentActivities, setRecentActivities] = useState([]);
   const navigate = useNavigate();
 
-  // Use useState for user data to prevent infinite re-renders
-  const [user, setUser] = useState(null);
-  const [userRoles, setUserRoles] = useState([]);
+  const token = localStorage.getItem('access_token');
+  console.log('------------------------------');
+  console.log('Token from localStorage:', token);
+  console.log('------------------------------');
 
-  // Initialize user data from token
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    console.log('------------------------------');
-    console.log('Token from localStorage:', token);
-    console.log('------------------------------');
-
+  let user = null;
+  let userRoles = [];
+  try {
     if (token) {
-      try {
-        const decodedUser = jwtDecode(token);
-        // Handle both 'role' (string) and 'roles' (array) formats
-        const roles =
-          decodedUser.roles || (decodedUser.role ? [decodedUser.role] : []);
-
-        console.log('Decoded user:', decodedUser);
-        console.log('User roles:', roles);
-
-        setUser(decodedUser);
-        setUserRoles(roles);
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        console.log('Invalid token, removing from localStorage');
-        localStorage.removeItem('access_token');
-        setUser(null);
-        setUserRoles([]);
-      }
+      user = jwtDecode(token);
+      // Handle both 'role' (string) and 'roles' (array) formats
+      userRoles = user.roles || (user.role ? [user.role] : []);
+      console.log('Decoded user:', user);
+      console.log('User roles:', userRoles);
     } else {
       console.log('No token found in localStorage');
-      setUser(null);
-      setUserRoles([]);
     }
-  }, []); // Only run once on mount
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    console.log('Invalid token, removing from localStorage');
+    localStorage.removeItem('access_token');
+  }
 
-  // Check if user is admin or teacher and load data
+  console.log('------------------------------');
+  console.log('Final User object:', user);
+  console.log('------------------------------');
+
+  // Check if user is admin or teacher
   useEffect(() => {
-    if (!user) return;
-
-    console.log('useEffect triggered for user access check');
+    console.log('useEffect triggered');
+    console.log('Token exists:', !!token);
     console.log('User exists:', !!user);
     console.log('User roles:', userRoles);
 
     const hasAccess =
       userRoles.includes('admin') || userRoles.includes('teacher');
 
-    if (!hasAccess) {
+    if (!token || !user || !hasAccess) {
       console.log('Access denied, redirecting to home');
-      console.log('Reason: roles=', userRoles);
+      console.log(
+        'Reason: token=',
+        !!token,
+        'user=',
+        !!user,
+        'roles=',
+        userRoles
+      );
       navigate('/');
       return;
     }
@@ -73,14 +69,12 @@ const AdminDashboard = () => {
     console.log('Access granted, loading dashboard stats');
     // Load dashboard stats
     loadDashboardStats();
-  }, [user, userRoles, navigate]);
+  }, [token, user, userRoles, navigate]);
 
   const loadDashboardStats = async () => {
     try {
       setLoading(true);
       console.log('Loading dashboard stats...');
-
-      const token = localStorage.getItem('access_token');
 
       // Load courses count from existing endpoint
       const coursesResponse = await fetch(
@@ -105,21 +99,17 @@ const AdminDashboard = () => {
       // Count courses
       if (coursesResponse.ok) {
         const coursesData = await coursesResponse.json();
-        console.log('Courses data:', coursesData);
         totalCourses = Array.isArray(coursesData) ? coursesData.length : 0;
 
         // Count videos/lessons from all courses
         totalVideos = coursesData.reduce((count, course) => {
           return count + (course.lessons ? course.lessons.length : 0);
         }, 0);
-      } else {
-        console.error('Failed to fetch courses:', coursesResponse.status);
       }
 
       // Count unique students and prepare recent activities
       if (studentsResponse.ok) {
         const studentsData = await studentsResponse.json();
-        console.log('Students data:', studentsData);
         if (Array.isArray(studentsData)) {
           const uniqueStudents = new Set(
             studentsData.map((record) => record.user_id)
@@ -145,8 +135,6 @@ const AdminDashboard = () => {
 
           setRecentActivities(recentCompletions);
         }
-      } else {
-        console.error('Failed to fetch students:', studentsResponse.status);
       }
 
       console.log('Stats loaded:', {
@@ -176,11 +164,10 @@ const AdminDashboard = () => {
     }
   };
 
-  // Show access denied if no user or insufficient permissions
-  if (
-    !user ||
-    (!userRoles.includes('admin') && !userRoles.includes('teacher'))
-  ) {
+  const hasAccess =
+    userRoles.includes('admin') || userRoles.includes('teacher');
+
+  if (!user || !hasAccess) {
     return <div>Access denied. Admin or Teacher access only.</div>;
   }
 
