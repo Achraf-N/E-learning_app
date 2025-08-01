@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_BASE_URL = 'http://localhost:8002'; // Update with your FastAPI server URL
+const API_BASE_URL = 'http://localhost:8000/api/v1/agent'; // API Gateway URL
 
 export default function Quiz({
   quizId, // New prop to receive quiz ID

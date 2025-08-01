@@ -43,9 +43,12 @@ const VimeoUploader = () => {
   const loadCourses = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8080/modules/full', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        'http://localhost:8000/api/v1/content/modules/full',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (response.ok) {
         const coursesData = await response.json();
         setCourses(coursesData);
@@ -173,7 +176,7 @@ const VimeoUploader = () => {
     try {
       // Step 1: Create upload ticket with Vimeo
       const uploadTicketResponse = await fetch(
-        'http://localhost:8080/admin/vimeo/create-upload',
+        'http://localhost:8000/api/v1/content/vimeo/upload',
         {
           method: 'POST',
           headers: {
@@ -282,7 +285,7 @@ const VimeoUploader = () => {
 
   const updateVimeoMetadata = async (videoId) => {
     await fetch(
-      `http://localhost:8080/admin/vimeo/update-metadata/${videoId}`,
+      `http://localhost:8000/api/v1/content/vimeo/update-metadata/${videoId}`,
       {
         method: 'PATCH',
         headers: {
@@ -298,22 +301,25 @@ const VimeoUploader = () => {
   };
 
   const saveVideoToDatabase = async (videoId) => {
-    const response = await fetch('http://localhost:8080/admin/lessons', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        title: videoData.title,
-        description: videoData.description,
-        course_id: videoData.courseId,
-        order_index: parseInt(videoData.lessonOrder),
-        video_url: `https://vimeo.com/${videoId}`,
-        vimeo_id: videoId,
-        video_type: 'vimeo',
-      }),
-    });
+    const response = await fetch(
+      'http://localhost:8000/api/v1/content/lessons',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: videoData.title,
+          description: videoData.description,
+          course_id: videoData.courseId,
+          order_index: parseInt(videoData.lessonOrder),
+          video_url: `https://vimeo.com/${videoId}`,
+          vimeo_id: videoId,
+          video_type: 'vimeo',
+        }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error('Failed to save lesson to database');

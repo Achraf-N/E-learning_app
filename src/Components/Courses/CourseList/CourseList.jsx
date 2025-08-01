@@ -17,7 +17,9 @@ const CoursList = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch('http://localhost:8080/modules/full');
+        const response = await fetch(
+          'http://localhost:8000/api/v1/content/modules/full'
+        );
         if (!response.ok) {
           throw new Error('Failed to fetch courses');
         }

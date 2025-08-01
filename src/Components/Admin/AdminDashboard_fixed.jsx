@@ -78,7 +78,7 @@ const AdminDashboard = () => {
 
       // Load courses count from existing endpoint
       const coursesResponse = await fetch(
-        'http://localhost:8080/modules/full',
+        'http://localhost:8000/api/v1/content/modules/full',
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
 
       // Load user progress to count students
       const studentsResponse = await fetch(
-        'http://localhost:8080/user-lesson-progress/all',
+        'http://localhost:8000/api/v1/content/user-lesson-progress/all',
         {
           headers: { Authorization: `Bearer ${token}` },
         }

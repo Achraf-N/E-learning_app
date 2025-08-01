@@ -24,14 +24,19 @@ const CourseDetails = () => {
   const userId = token ? jwtDecode(token).sub : null;
 
   // Enhanced setCurrentView to update URL
-  const setCurrentViewWithURL = useCallback((view) => {
-    setCurrentView(view);
-    if (view === 'about') {
-      navigate(`/course-details/${courseId}`, { replace: true });
-    } else {
-      navigate(`/course-details/${courseId}/lesson/${view}`, { replace: true });
-    }
-  }, [courseId, navigate]);
+  const setCurrentViewWithURL = useCallback(
+    (view) => {
+      setCurrentView(view);
+      if (view === 'about') {
+        navigate(`/course-details/${courseId}`, { replace: true });
+      } else {
+        navigate(`/course-details/${courseId}/lesson/${view}`, {
+          replace: true,
+        });
+      }
+    },
+    [courseId, navigate]
+  );
 
   // Initialize currentView based on URL params
   useEffect(() => {
@@ -46,7 +51,7 @@ const CourseDetails = () => {
     console.log('updateLessonProgress function defined, lessonId:', lessonId);
     try {
       const response = await fetch(
-        `http://localhost:8080/user-lesson-progress/?lesson_id=${lessonId}`,
+        `http://localhost:8000/api/v1/content/user-lesson-progress/?lesson_id=${lessonId}`,
         {
           method: 'PUT',
           headers: {
@@ -89,12 +94,16 @@ const CourseDetails = () => {
       try {
         // Try to fetch only the selected course if backend supports it
         let selectedCourse = null;
-        let response = await fetch(`http://localhost:8080/modules/${courseId}`);
+        let response = await fetch(
+          `http://localhost:8000/api/v1/content/modules/${courseId}`
+        );
         if (response.ok) {
           selectedCourse = await response.json();
         } else {
           // fallback to old method if endpoint not available
-          response = await fetch('http://localhost:8080/modules/full');
+          response = await fetch(
+            'http://localhost:8000/api/v1/content/modules/full'
+          );
           const modules = await response.json();
           selectedCourse = modules.find((module) => module.id === courseId);
         }
@@ -125,7 +134,7 @@ const CourseDetails = () => {
       try {
         // Try to fetch only progress for this course if backend supports it
         let response = await fetch(
-          `http://localhost:8080/user-lesson-progress/course/${courseId}`,
+          `http://localhost:8000/api/v1/content/user-lesson-progress/course/${courseId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -136,7 +145,7 @@ const CourseDetails = () => {
         } else {
           // fallback to all progress
           response = await fetch(
-            'http://localhost:8080/user-lesson-progress/all',
+            'http://localhost:8000/api/v1/content/user-lesson-progress/all',
             {
               headers: { Authorization: `Bearer ${token}` },
             }
@@ -249,7 +258,13 @@ const CourseDetails = () => {
         setTimeout(() => setLockMessage(''), 5000);
       }
     }
-  }, [getNextLessonId, isLessonUnlocked, currentView, course?.lessons, setCurrentViewWithURL]);
+  }, [
+    getNextLessonId,
+    isLessonUnlocked,
+    currentView,
+    course?.lessons,
+    setCurrentViewWithURL,
+  ]);
 
   // Handle previous lesson navigation
   const handlePreviousLesson = useCallback(() => {

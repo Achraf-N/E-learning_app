@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Quiz from './Quiz'; // import your Quiz component
 import VideoPlayer from './VideoPlayer';
 
-const API_BASE_URL = 'http://localhost:8002';
+const API_BASE_URL = 'http://localhost:8000/api/v1/agent';
 
 const LessonContent = ({
   currentView,
