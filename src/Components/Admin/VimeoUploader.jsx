@@ -25,14 +25,28 @@ const VimeoUploader = () => {
   const navigate = useNavigate();
 
   const token = localStorage.getItem('access_token');
-  const user = token ? jwtDecode(token) : null;
+  //const user = token ? jwtDecode(token) : null;
+  const user = React.useMemo(() => (token ? jwtDecode(token) : null), [token]);
 
   // Handle both roles array and role string formats
-  const userRoles = user ? user.roles || (user.role ? [user.role] : []) : [];
-  const isAdmin = userRoles.includes('admin');
-  const isTeacher = userRoles.includes('teacher');
+  //const userRoles = user ? user.roles || (user.role ? [user.role] : []) : [];
+  //const isAdmin = userRoles.includes('admin');
+  //const isTeacher = userRoles.includes('teacher');
+
+  const userRoles = React.useMemo(() => {
+    if (!user) return [];
+    return user.roles || (user.role ? [user.role] : []);
+  }, [user]);
+
+  const isAdmin = React.useMemo(() => userRoles.includes('admin'), [userRoles]);
+  const isTeacher = React.useMemo(
+    () => userRoles.includes('teacher'),
+    [userRoles]
+  );
 
   React.useEffect(() => {
+    console.log('useEffect triggered');
+
     if (!token || !user || (!isAdmin && !isTeacher)) {
       navigate('/');
       return;
@@ -126,6 +140,7 @@ const VimeoUploader = () => {
   }, []);
 
   const processFile = (file) => {
+    console.log('File type:', file.type);
     // Validate file type
     const allowedTypes = [
       'video/mp4',
@@ -149,7 +164,12 @@ const VimeoUploader = () => {
     }
 
     setError('');
-    setValidationErrors((prev) => ({ ...prev, file: '' }));
+    // Supprimer proprement la clé 'file' de validationErrors
+    setValidationErrors((prev) => {
+      const { file, ...rest } = prev; // enlève la clé 'file'
+      return rest;
+    });
+
     setSelectedFile(file);
 
     // Auto-fill title if empty
@@ -634,6 +654,14 @@ const VimeoUploader = () => {
                 </div>
               )}
 
+              <div>
+                <p>uploadState: {uploadState}</p>
+                <p>selectedFile: {selectedFile ? selectedFile.name : 'none'}</p>
+                <p>
+                  validationErrors keys:{' '}
+                  {Object.keys(validationErrors).join(', ') || 'none'}
+                </p>
+              </div>
               {/* Drop Zone */}
               <div
                 className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors ${
