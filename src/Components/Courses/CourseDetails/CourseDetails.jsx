@@ -95,10 +95,11 @@ const CourseDetails = () => {
         // Try to fetch only the selected course if backend supports it
         let selectedCourse = null;
         let response = await fetch(
-          `http://localhost:8000/api/v1/content/modules/${courseId}`
+          `http://localhost:8000/api/v1/content/modules/full/${courseId}`
         );
         if (response.ok) {
           selectedCourse = await response.json();
+          console.log('selected courses : ', selectedCourse);
         } else {
           // fallback to old method if endpoint not available
           response = await fetch(
@@ -107,9 +108,13 @@ const CourseDetails = () => {
           const modules = await response.json();
           selectedCourse = modules.find((module) => module.id === courseId);
         }
-        setCourse(selectedCourse);
+        setCourse(
+          Array.isArray(selectedCourse) ? selectedCourse[0] : selectedCourse
+        );
         setLoading(false);
         // Update cache for next time
+
+        console.log('selected courses 2: ', selectedCourse);
         if (selectedCourse) {
           localStorage.setItem(
             `course_${courseId}`,
@@ -127,34 +132,25 @@ const CourseDetails = () => {
 
   useEffect(() => {
     const loadProgress = async () => {
+      console.log('selected courses 4: ', course?.lessons);
       if (!course?.lessons || !token) return;
 
+      console.log('selected courses 5: ');
       setIsProgressLoading(true); // Start loading progress
 
       try {
-        // Try to fetch only progress for this course if backend supports it
-        let response = await fetch(
-          `http://localhost:8000/api/v1/content/user-lesson-progress/course/${courseId}`,
+        const response = await fetch(
+          'http://localhost:8000/api/v1/content/user-lesson-progress/all',
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        let data = [];
-        if (response.ok) {
-          data = await response.json();
-        } else {
-          // fallback to all progress
-          response = await fetch(
-            'http://localhost:8000/api/v1/content/user-lesson-progress/all',
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          data = await response.json();
-        }
+
+        const data = response.ok ? await response.json() : [];
 
         const accessedLessons = course.lessons.map((lesson) => {
           const found = data.find((p) => p.lesson_id === lesson.id);
+
           return {
             ...lesson,
             completed: found?.completed || false,
