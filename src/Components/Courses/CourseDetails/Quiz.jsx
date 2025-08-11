@@ -87,10 +87,9 @@ export default function Quiz({
   }, [quizId]);
 
   const handleOptionClick = (index) => {
-    if (timerActive) {
-      setSelectedOption(index);
-      setTimerActive(false); // Stop timer when answer is selected
-    }
+    // Allow changing selection before submitting
+    setSelectedOption(index);
+    // Keep the timer running until Next is clicked or time runs out
   };
 
   const handleNext = (isTimeout = false) => {
