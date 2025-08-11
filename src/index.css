@@ -88,4 +88,7 @@
   .dropdown-toggle::after {
     margin: 0 0 !important;
   }
+  .vimeo-player-container iframe {
+    @apply absolute top-0 left-0 w-full h-full border-0;
+  }
 }

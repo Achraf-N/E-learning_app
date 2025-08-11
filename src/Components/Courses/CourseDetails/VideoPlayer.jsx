@@ -10,8 +10,9 @@ const VideoPlayer = ({
   className = '',
   playerOptions = {},
 }) => {
-  const playerRef = useRef(null); // Vimeo.Player instance
-  const vimeoContainerRef = useRef(null);
+  const playerRef = useRef(null); // Vimeo.Player ou YT.Player instance
+  const playerContainerRef = useRef(null);
+
   const [watchedSegments, setWatchedSegments] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -19,12 +20,22 @@ const VideoPlayer = ({
   const [duration, setDuration] = useState(0);
   const [lastReportedTime, setLastReportedTime] = useState(0);
 
-  useEffect(() => {
-    console.log('VideoPlayer mounted, videoUrl:', videoUrl);
-    return () => console.log('VideoPlayer unmounted');
-  }, [videoUrl]);
+  const isYouTube = (url) => /(?:youtube\.com|youtu\.be)\//i.test(String(url));
+  const isVimeo = (url) => /vimeo\.com/i.test(String(url));
 
-  // Fusionner segments chevauchants ou adjacents
+  // Extraction des IDs
+  const getVimeoId = (url) => {
+    const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    return m ? m[1] : null;
+  };
+  const getYouTubeId = (url) => {
+    const m = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    );
+    return m ? m[1] : null;
+  };
+
+  // Fusionner segments regardés
   const mergeSegments = (segments) => {
     if (segments.length === 0) return [];
     segments.sort((a, b) => a[0] - b[0]);
@@ -32,24 +43,17 @@ const VideoPlayer = ({
     for (let i = 1; i < segments.length; i++) {
       const last = merged[merged.length - 1];
       const current = segments[i];
-      if (current[0] <= last[1]) {
-        last[1] = Math.max(last[1], current[1]);
-      } else {
-        merged.push(current);
-      }
+      if (current[0] <= last[1]) last[1] = Math.max(last[1], current[1]);
+      else merged.push(current);
     }
     return merged;
   };
 
   // Calcul durée totale regardée
-  const calculateWatchedDuration = () => {
-    return watchedSegments.reduce(
-      (total, [start, end]) => total + (end - start),
-      0
-    );
-  };
+  const calculateWatchedDuration = () =>
+    watchedSegments.reduce((total, [start, end]) => total + (end - start), 0);
 
-  // Vérifier si quiz débloqué
+  // Débloquer quiz ?
   const isQuizUnlocked = () => {
     if (videoWatched) return true;
     if (!duration) return false;
@@ -57,20 +61,21 @@ const VideoPlayer = ({
     return watchedDuration >= duration * unlockThreshold;
   };
 
-  // Gestion événements ReactPlayer
-  const handlePlay = () => setIsPlaying(true);
-  const handlePause = () => setIsPlaying(false);
-  const handleError = () => {
-    setHasError(true);
-    setIsLoading(false);
-  };
-  const handleReady = () => setIsLoading(false);
-  const handleDuration = (dur) => setDuration(dur || 0);
-
+  // Gestion clic quiz
   const handleQuizClick = () => {
     try {
-      if (playerRef.current && typeof playerRef.current.pause === 'function') {
-        playerRef.current.pause();
+      if (playerRef.current) {
+        if (
+          isYouTube(videoUrl) &&
+          typeof playerRef.current.pauseVideo === 'function'
+        ) {
+          playerRef.current.pauseVideo();
+        } else if (
+          isVimeo(videoUrl) &&
+          typeof playerRef.current.pause === 'function'
+        ) {
+          playerRef.current.pause();
+        }
       }
     } catch {}
     onStartQuiz();
@@ -80,131 +85,182 @@ const VideoPlayer = ({
   useEffect(() => {
     try {
       const savedSegments = localStorage.getItem(storageKey);
-      if (savedSegments) {
-        setWatchedSegments(JSON.parse(savedSegments));
-      }
-    } catch (error) {
-      console.error('Error loading watched segments:', error);
+      if (savedSegments) setWatchedSegments(JSON.parse(savedSegments));
+    } catch (e) {
+      console.error('Error loading watched segments:', e);
     }
   }, [storageKey]);
 
-  // Sauvegarder segments regardés
+  // Sauvegarder segments
   useEffect(() => {
     try {
       localStorage.setItem(storageKey, JSON.stringify(watchedSegments));
-    } catch (error) {
-      console.error('Error saving watched segments:', error);
+    } catch (e) {
+      console.error('Error saving watched segments:', e);
     }
   }, [watchedSegments, storageKey]);
 
-  // Extract Vimeo ID from common URL forms
-  const getVimeoId = (url) => {
-    if (!url) return null;
-    const s = String(url).trim();
-    // Matches player.vimeo.com/video/ID or vimeo.com/ID
-    const m = s.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-    return m ? m[1] : null;
-  };
-
-  // Ensure Vimeo Player SDK is loaded and initialize the player
-  useEffect(() => {
-    const id = getVimeoId(videoUrl);
-    if (!id) {
-      setHasError(true);
-      setIsLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-    let player;
-
-    const loadVimeoScript = () =>
-      new Promise((resolve) => {
-        if (window.Vimeo && window.Vimeo.Player) return resolve();
-        const existing = document.querySelector('script[data-vimeo-player]');
-        if (existing) {
-          existing.addEventListener('load', () => resolve());
-          return;
-        }
+  // Initialisation Vimeo Player
+  const initVimeoPlayer = async (id) => {
+    if (!window.Vimeo || !window.Vimeo.Player) {
+      await new Promise((resolve) => {
         const script = document.createElement('script');
         script.src = 'https://player.vimeo.com/api/player.js';
         script.async = true;
-        script.dataset.vimeoPlayer = 'true';
-        script.onload = () => resolve();
+        script.onload = resolve;
         document.body.appendChild(script);
       });
+    }
 
-    const init = async () => {
-      try {
-        await loadVimeoScript();
-        if (cancelled || !vimeoContainerRef.current) return;
-        player = new window.Vimeo.Player(vimeoContainerRef.current, {
-          id,
-          dnt: true,
-          title: false,
-          byline: false,
-          portrait: false,
-        });
-        playerRef.current = player;
+    const player = new window.Vimeo.Player(playerContainerRef.current, {
+      id,
+      dnt: true,
+      title: false,
+      byline: false,
+      portrait: false,
+      ...playerOptions.vimeo,
+    });
+    playerRef.current = player;
 
-        player.on('loaded', () => {
-          if (cancelled) return;
+    player.on('loaded', () => {
+      setIsLoading(false);
+      player.getDuration().then((d) => setDuration(d || 0));
+    });
+
+    player.on('play', () => setIsPlaying(true));
+    player.on('pause', () => setIsPlaying(false));
+
+    player.on('timeupdate', (data) => {
+      const playedSeconds = data.seconds || 0;
+      const delta = Math.abs(playedSeconds - lastReportedTime);
+      if (delta < 0.75) return;
+      setLastReportedTime(playedSeconds);
+      const segmentStart = Math.max(0, playedSeconds - 0.5);
+      const segmentEnd = Math.min(playedSeconds, duration || playedSeconds);
+      setWatchedSegments((prev) =>
+        mergeSegments([...prev, [segmentStart, segmentEnd]])
+      );
+    });
+
+    player.on('error', () => {
+      setHasError(true);
+      setIsLoading(false);
+    });
+  };
+
+  // Initialisation YouTube Player
+  const initYouTubePlayer = (videoId) => {
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      tag.async = true;
+      document.body.appendChild(tag);
+      window.onYouTubeIframeAPIReady = () => createYTPlayer(videoId);
+    } else {
+      createYTPlayer(videoId);
+    }
+  };
+
+  // Création player YouTube
+  const createYTPlayer = (videoId) => {
+    const player = new window.YT.Player(playerContainerRef.current, {
+      videoId,
+      playerVars: {
+        modestbranding: 1,
+        rel: 0,
+        origin: window.location.origin,
+        ...playerOptions.youtube,
+      },
+      events: {
+        onReady: (event) => {
           setIsLoading(false);
-          player.getDuration().then((d) => setDuration(d || 0));
-        });
-        player.on('play', () => {
-          if (cancelled) return;
-          handlePlay();
-        });
-        player.on('pause', () => {
-          if (cancelled) return;
-          handlePause();
-        });
-        player.on('timeupdate', (data) => {
-          if (cancelled) return;
-          const playedSeconds = data?.seconds ?? 0;
-          const delta = Math.abs(playedSeconds - lastReportedTime);
-          if (delta < 0.75) return;
-          setLastReportedTime(playedSeconds);
-          const segmentStart = Math.max(0, playedSeconds - 0.5);
-          const segmentEnd = Math.min(playedSeconds, duration || playedSeconds);
-          setWatchedSegments((prev) => {
-            const newSegments = [...prev, [segmentStart, segmentEnd]];
-            return mergeSegments(newSegments);
-          });
-        });
-        player.on('error', () => {
-          if (cancelled) return;
+          setDuration(event.target.getDuration());
+        },
+        onStateChange: (event) => {
+          if (event.data === window.YT.PlayerState.PLAYING) {
+            setIsPlaying(true);
+            trackTimeYT(event.target);
+          } else if (
+            event.data === window.YT.PlayerState.PAUSED ||
+            event.data === window.YT.PlayerState.ENDED
+          ) {
+            setIsPlaying(false);
+          }
+        },
+        onError: () => {
           setHasError(true);
           setIsLoading(false);
-        });
-      } catch (e) {
-        if (cancelled) return;
+        },
+      },
+    });
+    playerRef.current = player;
+  };
+
+  // Tracking temps YouTube par polling
+  const trackTimeYT = (player) => {
+    const interval = setInterval(() => {
+      if (!player || !isPlaying) {
+        clearInterval(interval);
+        return;
+      }
+      const playedSeconds = player.getCurrentTime();
+      const delta = Math.abs(playedSeconds - lastReportedTime);
+      if (delta < 0.75) return;
+      setLastReportedTime(playedSeconds);
+      const segmentStart = Math.max(0, playedSeconds - 0.5);
+      const segmentEnd = Math.min(playedSeconds, duration || playedSeconds);
+      setWatchedSegments((prev) =>
+        mergeSegments([...prev, [segmentStart, segmentEnd]])
+      );
+    }, 500);
+  };
+
+  // Effet d'initialisation player
+  useEffect(() => {
+    setHasError(false);
+    setIsLoading(true);
+    setDuration(0);
+    setLastReportedTime(0);
+    setWatchedSegments([]);
+
+    if (isYouTube(videoUrl)) {
+      const videoId = getYouTubeId(videoUrl);
+      if (!videoId) {
         setHasError(true);
         setIsLoading(false);
+        return;
       }
-    };
-
-    init();
+      initYouTubePlayer(videoId);
+    } else if (isVimeo(videoUrl)) {
+      const videoId = getVimeoId(videoUrl);
+      if (!videoId) {
+        setHasError(true);
+        setIsLoading(false);
+        return;
+      }
+      initVimeoPlayer(videoId);
+    } else {
+      setHasError(true);
+      setIsLoading(false);
+    }
 
     return () => {
-      cancelled = true;
-      try {
-        if (player) player.unload?.();
-      } catch {}
-      playerRef.current = null;
+      if (playerRef.current) {
+        if (isYouTube(videoUrl)) {
+          playerRef.current.destroy();
+        } else if (isVimeo(videoUrl)) {
+          playerRef.current.unload?.();
+        }
+        playerRef.current = null;
+      }
     };
-    // **IMPORTANT** : ne dépend que de videoUrl ici
   }, [videoUrl]);
-
   return (
     <div className={`flex flex-col ${className}`}>
-      <div
-        style={{ position: 'relative', paddingTop: '56.25%', width: '100%' }}
-      >
+      <div className="relative w-full aspect-video overflow-hidden">
         {hasError && (
           <div
-            className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10"
+            className="absolute inset-0 bg-gray-100 flex items-center justify-center z-20"
             style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}
           >
             <p className="text-red-500 font-medium">
@@ -215,16 +271,25 @@ const VideoPlayer = ({
 
         {isLoading && !hasError && (
           <div
-            className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10"
+            className="absolute inset-0 bg-gray-100 flex items-center justify-center z-20"
             style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}
           >
             <div className="animate-pulse text-gray-400">Loading video...</div>
           </div>
         )}
 
+        {/* Player container, relative with absolute iframe inside */}
         <div
-          ref={vimeoContainerRef}
-          style={{ position: 'absolute', inset: 0 }}
+          ref={playerContainerRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: 10,
+            backgroundColor: 'black',
+          }}
         />
       </div>
 
