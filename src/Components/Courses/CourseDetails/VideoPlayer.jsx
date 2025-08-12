@@ -19,6 +19,8 @@ const VideoPlayer = ({
   const [isLoading, setIsLoading] = useState(true);
   const [duration, setDuration] = useState(0);
   const [lastReportedTime, setLastReportedTime] = useState(0);
+  const [forceUpdate, setForceUpdate] = useState(0);
+  const [youtubePlayStartTime, setYoutubePlayStartTime] = useState(null);
 
   const isYouTube = (url) => /(?:youtube\.com|youtu\.be)\//i.test(String(url));
   const isVimeo = (url) => /vimeo\.com/i.test(String(url));
@@ -56,9 +58,47 @@ const VideoPlayer = ({
   // Débloquer quiz ?
   const isQuizUnlocked = () => {
     if (videoWatched) return true;
+
+    // For YouTube videos, auto-unlock after 10 seconds of playing (more lenient)
+    if (isYouTube(videoUrl) && isPlaying && duration > 0) {
+      const currentTime = playerRef.current?.getCurrentTime?.() || 0;
+      if (currentTime >= 10) {
+        console.log('YouTube auto-unlock after 10 seconds');
+        return true;
+      }
+    }
+
+    // Alternative: unlock after 15 seconds of continuous playing
+    if (isYouTube(videoUrl) && youtubePlayStartTime && isPlaying) {
+      const playDuration = (Date.now() - youtubePlayStartTime) / 1000;
+      if (playDuration >= 15) {
+        console.log('YouTube auto-unlock after 15 seconds of continuous play');
+        return true;
+      }
+    }
+
     if (!duration) return false;
     const watchedDuration = calculateWatchedDuration();
-    return watchedDuration >= duration * unlockThreshold;
+    const threshold = duration * unlockThreshold;
+    const unlocked = watchedDuration >= threshold;
+
+    // Debug logging
+    console.log('Quiz unlock check:', {
+      videoWatched,
+      duration,
+      watchedDuration,
+      threshold,
+      unlocked,
+      watchedSegments,
+      isYouTube: isYouTube(videoUrl),
+      isPlaying,
+      currentTime: playerRef.current?.getCurrentTime?.() || 0,
+      playDuration: youtubePlayStartTime
+        ? (Date.now() - youtubePlayStartTime) / 1000
+        : 0,
+    });
+
+    return unlocked;
   };
 
   // Gestion clic quiz
@@ -95,10 +135,24 @@ const VideoPlayer = ({
   useEffect(() => {
     try {
       localStorage.setItem(storageKey, JSON.stringify(watchedSegments));
+      console.log('Watched segments updated:', watchedSegments);
+      // Force re-render to update button state
+      setForceUpdate((prev) => prev + 1);
     } catch (e) {
       console.error('Error saving watched segments:', e);
     }
   }, [watchedSegments, storageKey]);
+
+  // Force re-render for YouTube unlock status
+  useEffect(() => {
+    if (isYouTube(videoUrl) && isPlaying) {
+      const interval = setInterval(() => {
+        setForceUpdate((prev) => prev + 1);
+      }, 2000); // Check every 2 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [isYouTube, videoUrl, isPlaying]);
 
   // Initialisation Vimeo Player
   const initVimeoPlayer = async (id) => {
@@ -155,8 +209,12 @@ const VideoPlayer = ({
       tag.src = 'https://www.youtube.com/iframe_api';
       tag.async = true;
       document.body.appendChild(tag);
-      window.onYouTubeIframeAPIReady = () => createYTPlayer(videoId);
+      window.onYouTubeIframeAPIReady = () => {
+        console.log('YouTube API ready, creating player...');
+        createYTPlayer(videoId);
+      };
     } else {
+      console.log('YouTube API already loaded, creating player...');
       createYTPlayer(videoId);
     }
   };
@@ -169,25 +227,32 @@ const VideoPlayer = ({
         modestbranding: 1,
         rel: 0,
         origin: window.location.origin,
+        enablejsapi: 1,
         ...playerOptions.youtube,
       },
       events: {
         onReady: (event) => {
           setIsLoading(false);
-          setDuration(event.target.getDuration());
+          const duration = event.target.getDuration();
+          setDuration(duration || 0);
+          console.log('YouTube player ready, duration:', duration);
         },
         onStateChange: (event) => {
+          console.log('YouTube state change:', event.data);
           if (event.data === window.YT.PlayerState.PLAYING) {
             setIsPlaying(true);
+            setYoutubePlayStartTime(Date.now());
             trackTimeYT(event.target);
           } else if (
             event.data === window.YT.PlayerState.PAUSED ||
             event.data === window.YT.PlayerState.ENDED
           ) {
             setIsPlaying(false);
+            setYoutubePlayStartTime(null);
           }
         },
-        onError: () => {
+        onError: (event) => {
+          console.error('YouTube player error:', event);
           setHasError(true);
           setIsLoading(false);
         },
@@ -203,16 +268,26 @@ const VideoPlayer = ({
         clearInterval(interval);
         return;
       }
-      const playedSeconds = player.getCurrentTime();
-      const delta = Math.abs(playedSeconds - lastReportedTime);
-      if (delta < 0.75) return;
-      setLastReportedTime(playedSeconds);
-      const segmentStart = Math.max(0, playedSeconds - 0.5);
-      const segmentEnd = Math.min(playedSeconds, duration || playedSeconds);
-      setWatchedSegments((prev) =>
-        mergeSegments([...prev, [segmentStart, segmentEnd]])
-      );
-    }, 500);
+      try {
+        const playedSeconds = player.getCurrentTime();
+        if (playedSeconds && playedSeconds > 0) {
+          const delta = Math.abs(playedSeconds - lastReportedTime);
+          if (delta >= 0.5) {
+            setLastReportedTime(playedSeconds);
+            const segmentStart = Math.max(0, playedSeconds - 0.5);
+            const segmentEnd = Math.min(
+              playedSeconds,
+              duration || playedSeconds
+            );
+            setWatchedSegments((prev) =>
+              mergeSegments([...prev, [segmentStart, segmentEnd]])
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Error tracking YouTube time:', error);
+      }
+    }, 1000);
   };
 
   // Effet d'initialisation player
@@ -295,6 +370,7 @@ const VideoPlayer = ({
 
       <div className="flex justify-end mt-4">
         <button
+          key={`quiz-button-${forceUpdate}`}
           disabled={!isQuizUnlocked()}
           onClick={handleQuizClick}
           className={`px-6 py-2 rounded font-semibold transition-colors duration-300 ${

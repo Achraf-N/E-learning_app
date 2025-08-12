@@ -7,6 +7,7 @@ const LessonBar = ({
   setAboutView,
   lessonStates,
   isLessonUnlocked,
+  examUnlocked,
 }) => {
   return (
     <aside className="w-72 p-4 bg-white rounded-lg shadow absolute top-0 left-0 z-10 overflow-y-auto h-screen mt-36">
@@ -21,6 +22,49 @@ const LessonBar = ({
         />
       </div>
       <p className="text-sm text-gray-600 mb-4">{progress}% COMPLETE</p>
+
+      {/* Final Exam entry */}
+      <div
+        className={`p-2 rounded mb-2 relative ${
+          currentView === 'exam'
+            ? 'bg-purple-100 border-l-4 border-purple-500 cursor-pointer'
+            : examUnlocked
+            ? 'hover:bg-gray-100 cursor-pointer'
+            : 'bg-gray-50 cursor-not-allowed opacity-60'
+        }`}
+        onClick={() => examUnlocked && setCurrentView('exam')}
+        title={examUnlocked ? 'Final Exam' : 'Complete all lessons to unlock'}
+      >
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-medium text-purple-600 min-w-[20px]">
+              ★
+            </span>
+            <span
+              className={`text-sm ${
+                examUnlocked ? 'text-gray-700' : 'text-gray-400'
+              }`}
+            >
+              Final Exam
+            </span>
+          </div>
+          <div className="flex items-center space-x-1">
+            {!examUnlocked && (
+              <span className="text-gray-400 text-sm" title="Locked">
+                🔒
+              </span>
+            )}
+            {examUnlocked && (
+              <span
+                className="text-purple-500 text-lg font-bold"
+                title="Unlocked"
+              >
+                ✓
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div
         className={`p-2 rounded mb-1 cursor-pointer ${

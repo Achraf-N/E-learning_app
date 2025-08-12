@@ -10,6 +10,7 @@ export default function Quiz({
   savedScore = null,
   hasPassed = false,
   onNextLesson,
+  isFinalLesson = false, // New prop to indicate if this is the final lesson
 }) {
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -295,7 +296,9 @@ export default function Quiz({
                     onClick={onNextLesson}
                     className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                   >
-                    Next Lesson →
+                    {isFinalLesson
+                      ? 'Ready for Final Exam? →'
+                      : 'Next Lesson →'}
                   </button>
                 </>
               ) : (
