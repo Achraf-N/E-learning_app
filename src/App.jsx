@@ -30,6 +30,7 @@ const VerifyEmail = lazy(() => import('./Components/Verify/verify-email'));
 const Error = lazy(() => import('./Components/404Error/Error'));
 const Up = lazy(() => import('./Components/Ui/Up/Up'));
 const AdminDashboard = lazy(() => import('./Components/Admin/AdminDashboard'));
+const ManageCourses = lazy(() => import('./Components/Admin/ManageCourses'));
 const VimeoUploader = lazy(() => import('./Components/Admin/VimeoUploader'));
 const TestAuth = lazy(() => import('./Components/Admin/TestAuth'));
 const QuickTest = lazy(() => import('./Components/Admin/QuickTest'));
@@ -113,17 +114,8 @@ const App = () => {
           <Route
             path="/admin/courses"
             element={
-              <AdminRoute allowedRoles={['admin']}>
-                <div className="min-h-screen bg-gray-50 py-8">
-                  <div className="max-w-7xl mx-auto px-4">
-                    <h1 className="text-3xl font-bold text-gray-900">
-                      Course Management
-                    </h1>
-                    <p className="text-gray-600 mt-2">
-                      Manage all courses (Coming Soon)
-                    </p>
-                  </div>
-                </div>
+              <AdminRoute allowedRoles={['admin', 'teacher']}>
+                <ManageCourses />
               </AdminRoute>
             }
           />

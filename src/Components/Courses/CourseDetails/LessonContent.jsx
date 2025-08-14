@@ -254,7 +254,7 @@ const LessonContent = ({
 
       {lessonContent.pdf && (
         <a
-          href={`${API_BASE_URL}/files/${lessonContent.pdf.split('\\').pop()}`}
+          href={`${lessonContent.pdf.split('\\').pop()}`}
           target="_blank"
           rel="noopener noreferrer"
           className="block mt-3 text-blue-600 hover:underline"

@@ -163,8 +163,8 @@ const Navbar = () => {
         <div
           className={
             nav
-              ? 'relative duration-500 opacity-0 w-full h-[0vh]'
-              : 'relative duration-500 opacity-100 w-full bg-main-color h-[150vh] p-4'
+              ? 'relative duration-500 opacity-0 w-full h-0 overflow-hidden pointer-events-none'
+              : 'relative duration-500 opacity-100 w-full bg-main-color min-h-screen p-4 z-50'
           }
         >
           <div>
