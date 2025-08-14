@@ -26,6 +26,7 @@ const Courses = lazy(() => import('./Components/Courses/Home'));
 const CourseDetails = lazy(() =>
   import('./Components/Courses/CourseDetails/CourseDetails')
 );
+const ExamPage = lazy(() => import('./Components/Exams/ExamPage'));
 const VerifyEmail = lazy(() => import('./Components/Verify/verify-email'));
 const Error = lazy(() => import('./Components/404Error/Error'));
 const Up = lazy(() => import('./Components/Ui/Up/Up'));
@@ -65,6 +66,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <CourseDetails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/course-details/:courseId/exam"
+            element={
+              <PrivateRoute>
+                <ExamPage />
               </PrivateRoute>
             }
           />
