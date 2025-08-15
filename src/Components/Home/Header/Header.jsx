@@ -1,5 +1,4 @@
 import React from 'react';
-import Img from './../../../Assets/HeaderTwo.jpg';
 import { Link } from 'react-router-dom';
 import { Title } from '../../../GeneralFunctions/title';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +26,11 @@ const Heading = () => {
               </div>
             </div>
             <div>
-              <img src={Img} className="mt-8" alt="E-Learning" />
+              <img
+                src="https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/HeaderTwo.jpg"
+                className="mt-8"
+                alt="E-Learning"
+              />
             </div>
           </div>
         </div>

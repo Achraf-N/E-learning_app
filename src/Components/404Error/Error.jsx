@@ -1,6 +1,5 @@
 import React from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import Image from './../../Assets/404Page.webp';
 import { Link } from 'react-router-dom';
 import { Title } from '../../GeneralFunctions/title';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +15,10 @@ const Error = () => {
           <div className="container">
             <div className="textCenter my-20">
               <div>
-                <LazyLoadImage src={Image} alt="404 Image" />
+                <LazyLoadImage
+                  src="https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/404Page.webp"
+                  alt="404 Image"
+                />
               </div>
               <div>
                 <h1 className="font-semibold mb-8">{t('not_found')}</h1>

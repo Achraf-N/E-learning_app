@@ -1,8 +1,12 @@
-import LogoOne from './../../Assets/MenDarkLogo.jpg';
-import Facebook from './../../Assets/Facebook.png';
-import Twitter from './../../Assets/Twitter.png';
-import Instagram from './../../Assets/Instagram.png';
-import Gmail from './../../Assets/Gmail.png';
-import Phone from './../../Assets/Phone.png';
-
-export { LogoOne, Facebook, Twitter, Instagram, Gmail, Phone };
+export const LogoOne =
+  'https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/MenDarkLogo.jpg';
+export const Facebook =
+  'https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/Facebook.png';
+export const Twitter =
+  'https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/Twitter.png';
+export const Instagram =
+  'https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/Instagram.png';
+export const Gmail =
+  'https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/Gmail.png';
+export const Phone =
+  'https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/Phone.png';

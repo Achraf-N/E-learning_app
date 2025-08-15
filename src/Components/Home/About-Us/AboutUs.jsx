@@ -1,9 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import Teacher from './../../../Assets/teacher.png';
-import Digital from './../../../Assets/digitalization.png';
-import LowCoast from './../../../Assets/low-cost.png';
 import { motion } from 'framer-motion';
 
 const AboutUs = () => {
@@ -40,7 +37,11 @@ const AboutUs = () => {
               className="textCenter bg-main-color p-12 rounded shadow relative w-full"
             >
               <div>
-                <img src={Teacher} className="w-[60px]" alt="teacher" />
+                <img
+                  src="https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/teacher.png"
+                  className="w-[60px]"
+                  alt="teacher"
+                />
                 <div>
                   <h6 className="my-4">
                     {t('about-us_best-teachers_best_teachers')}
@@ -63,7 +64,11 @@ const AboutUs = () => {
             >
               {' '}
               <div>
-                <img src={Digital} className="w-[60px]" alt="digital" />
+                <img
+                  src="https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/digitalization.png"
+                  className="w-[60px]"
+                  alt="digital"
+                />
                 <div>
                   <h6 className="my-4">
                     {t('about-us_best-teachers_digital_learning')}
@@ -88,7 +93,11 @@ const AboutUs = () => {
             >
               {' '}
               <div>
-                <img src={LowCoast} className="w-[60px]" alt="low coast" />
+                <img
+                  src="https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/low-cost.png"
+                  className="w-[60px]"
+                  alt="low coast"
+                />
                 <div>
                   <h6 className="my-4">
                     {t('about-us_best-teachers_low_coast')}

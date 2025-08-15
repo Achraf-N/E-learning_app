@@ -1,7 +1,7 @@
 [
   {
     "id": "1",
-    "image": "/assets/DataBase.jpg",
+    "image": "https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/DataBase.jpg",
     "name": "Advanced Database",
     "name_fr": "Base de Données Avancée",
     "description": "Maîtrisez les concepts avancés des bases de données, y compris l’optimisation, les transactions, la sécurité et les bases de données distribuées.",
@@ -31,7 +31,7 @@
   },
   {
     "id": "2",
-    "image": "/assets/Java.png",
+    "image": "https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/Java.png",
     "name": "Object-Oriented Programming: Java",
     "name_fr": "Programmation Orientée Objet: Java",
     "description": "Apprenez la programmation orientée objet avec Java, en comprenant l’héritage, le polymorphisme et la conception orientée objet.",
@@ -53,7 +53,7 @@
   },
   {
     "id": "3",
-    "image": "/assets/XML.png",
+    "image": "https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/XML.png",
     "name": "XML Technology",
     "name_fr": "Technologie XML",
     "description": "Découvrez XML, ses structures, schémas et transformations avec XSLT.",
@@ -75,7 +75,7 @@
   },
   {
     "id": "4",
-    "image": "/assets/PHP.png",
+    "image": "https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/PHP.png",
     "name": "PHP/MySQL Programming",
     "name_fr": "Programmation PHP/MySQL",
     "description": "Apprenez à développer des applications web dynamiques avec PHP et MySQL.",
@@ -97,7 +97,7 @@
   },
   {
     "id": "5",
-    "image": "/assets/English.jpeg",
+    "image": "https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/English.jpeg",
     "name": "English Language",
     "name_fr": "Langue Anglaise",
     "description": "Développez vos compétences en langue anglaise pour la communication professionnelle et académique.",
@@ -119,7 +119,7 @@
   },
   {
     "id": "6",
-    "image": "/assets/AppDev.jpg",
+    "image": "https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/AppDev.jpg",
     "name": "Mobile Application Development",
     "name_fr": "Développement d'Application Mobile",
     "description": "Créez des applications mobiles pour Android et iOS en utilisant les technologies modernes.",
@@ -141,7 +141,7 @@
   },
   {
     "id": "7",
-    "image": "/assets/WebDevelopment.jpg",
+    "image": "https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/WebDevelopment.jpg",
     "name": "Advanced Web",
     "name_fr": "Web Avancée",
     "description": "Approfondissez vos compétences en développement web avec des techniques modernes avancées.",

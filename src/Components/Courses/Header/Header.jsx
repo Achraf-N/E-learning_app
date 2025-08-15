@@ -1,12 +1,12 @@
 import React from 'react';
 import { Title } from './../../../GeneralFunctions/title';
 import { useTranslation } from 'react-i18next';
-import CoursesBack from './../../../../src/Assets/CoursesBack.jpg';
 const Header = () => {
   const { t } = useTranslation();
 
   Title('Taalam | Courses');
-
+  const CoursesBack =
+    'https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/CoursesBack.jpg';
   return (
     <div>
       <div

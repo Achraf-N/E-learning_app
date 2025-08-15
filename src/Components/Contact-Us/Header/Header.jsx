@@ -1,18 +1,18 @@
 import React from 'react';
 import { Title } from '../../../GeneralFunctions/title';
 import { useTranslation } from 'react-i18next';
-import ContactUs from './../../../../src/Assets/ContactUs.jpeg';
 const Header = () => {
   const { t } = useTranslation();
 
   Title('Taalam | Contact-Us');
-
+  const contactUsImageUrl =
+    'https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/ContactUs.jpeg';
   return (
     <>
       <div>
         <div
           className="bg-cover bg-fixed h-[50vh] md:h-[70vh] lg:h-[90vh] relative"
-          style={{ backgroundImage: `url(${ContactUs})` }}
+          style={{ backgroundImage: `url(${contactUsImageUrl})` }}
         >
           <div className="container">
             <div className="w-full lg:w-12/12 text-center text-main-color absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">

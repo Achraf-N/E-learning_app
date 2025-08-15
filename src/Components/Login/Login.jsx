@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { GoogleLogin } from '@react-oauth/google';
-import Image from './../../Assets/loginTwo.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { AiOutlineEye } from 'react-icons/ai';
 import { Title } from '../../GeneralFunctions/title';
@@ -98,7 +97,7 @@ const Login = () => {
               </h1>
               <div className="mt-4">
                 <LazyLoadImage
-                  src={Image}
+                  src="https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/logintwo.png"
                   className="lg:w-9/12 mx-auto sm:block hidden"
                   alt="Login"
                 />

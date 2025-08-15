@@ -1,6 +1,5 @@
 import React from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import Image from './../../../../src/Assets/AboutUs.png';
 import { useTranslation } from 'react-i18next';
 
 const OurStory = () => {
@@ -12,7 +11,7 @@ const OurStory = () => {
         <div className="flex flex-col items-center md:mt-20 mt-4 ltr:lg:flex-row rtl:lg:flex-row-reverse">
           <div>
             <LazyLoadImage
-              src={Image}
+              src="https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/AboutUs.png"
               className="w-full lg:w-9/12 rtl:float-left"
               alt="About-Us"
             />

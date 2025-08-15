@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "image": "/assets/ManTeacher.jpeg",
+    "image": "https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/ManTeacher.jpeg",
     "job": "Machine Learning Specialist",
     "job_fr": "Spécialiste en apprentissage automatique",
     "job_ar": "أخصائي في التعلم الآلي",

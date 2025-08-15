@@ -4,7 +4,6 @@ import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { TranslateIcon } from '../../INDEX';
-import LogoImg from './../../Assets/MenDarkLogo.jpg';
 
 const Navbar = () => {
   const [nav, setNav] = useState(true);
@@ -53,7 +52,11 @@ const Navbar = () => {
         <div className="container">
           <div className="flex justify-between py-1 items-center">
             <div>
-              <img className="w-20 lg:w-24" src={LogoImg} alt="Logo" />
+              <img
+                className="w-20 lg:w-24"
+                src="https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/MenDarkLogo.jpg"
+                alt="Logo"
+              />
             </div>
             <div className="hidden md:flex">
               <Link className="nav-link" to="/">

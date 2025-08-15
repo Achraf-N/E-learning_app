@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Image from './../../Assets/Studying.jpeg';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { AiOutlineEye } from 'react-icons/ai';
 import { Link } from 'react-router-dom';
@@ -71,7 +70,7 @@ const SignUp = () => {
       <div className="container">
         <div className="flex flex-col items-center lg:flex-row justify-between my-12 p-12 rounded-2xl loginShadow">
           <LazyLoadImage
-            src={Image}
+            src="https://ihozhkncmbnfrodpmrwo.supabase.co/storage/v1/object/public/images/Studying.jpeg"
             className="lg:w-1/2 sm:block hidden"
             alt="Sign Up"
           />
