@@ -9,44 +9,16 @@ const ExamResults = ({
 }) => {
   const [showDetailedResults, setShowDetailedResults] = useState(false);
 
-  const getScoreColor = (percentage) => {
-    if (percentage >= 80) return '#27ae60'; // Green for excellent
-    if (percentage >= 60) return '#f39c12'; // Orange for good
-    return '#e74c3c'; // Red for needs improvement
+  const getScoreColor = (grade20) => {
+    if (grade20 >= 16) return '#27ae60'; // excellent
+    if (grade20 >= 12) return '#f39c12'; // average-good
+    return '#e74c3c'; // needs improvement
   };
 
-  const getScoreMessage = (percentage) => {
-    if (percentage >= 80)
-      return 'Excellent! You have a strong understanding of the material.';
-    if (percentage >= 60)
-      return 'Good job! You have a solid grasp of the concepts.';
-    return 'Keep practicing! Review the material and try again.';
-  };
-
-  const getQuestionTypeLabel = (type) => {
-    switch (type) {
-      case 'mcq':
-        return 'Multiple Choice';
-      case 'true_false':
-        return 'True/False';
-      case 'resolution':
-        return 'Resolution';
-      default:
-        return type;
-    }
-  };
-
-  const getQuestionTypeIcon = (type) => {
-    switch (type) {
-      case 'mcq':
-        return '📝';
-      case 'true_false':
-        return '✅';
-      case 'resolution':
-        return '✍️';
-      default:
-        return '❓';
-    }
+  const getScoreMessage = (grade20) => {
+    if (grade20 >= 16) return 'Excellent!';
+    if (grade20 >= 12) return 'Good effort!';
+    return 'Keep practicing!';
   };
 
   const formatDate = (dateString) => {
@@ -62,76 +34,39 @@ const ExamResults = ({
         </button>
       </div>
 
+      {/* SUMMARY SECTION */}
       <div className="results-summary">
         <div className="score-card">
           <div
             className="score-circle"
-            style={{ borderColor: getScoreColor(examResult.percentage) }}
+            style={{ borderColor: getScoreColor(examResult.finalGrade20) }}
           >
             <span
               className="score-percentage"
-              style={{ color: getScoreColor(examResult.percentage) }}
+              style={{ color: getScoreColor(examResult.finalGrade20) }}
             >
-              {examResult.percentage}%
+              {examResult.finalGrade20}/20
             </span>
             <span className="score-fraction">
-              {examResult.score}/{examResult.totalQuestions}
+              {examResult.totalPointsEarned}/{examResult.totalMaxPoints} points
             </span>
           </div>
           <div className="score-details">
-            <h3>Your Score</h3>
+            <h3>Your Grade</h3>
             <p
               className="score-message"
-              style={{ color: getScoreColor(examResult.percentage) }}
+              style={{ color: getScoreColor(examResult.finalGrade20) }}
             >
-              {getScoreMessage(examResult.percentage)}
+              {getScoreMessage(examResult.finalGrade20)}
             </p>
             <p className="completion-time">
               Completed on: {formatDate(examResult.completedAt)}
             </p>
           </div>
         </div>
-
-        <div className="results-breakdown">
-          <h3>Question Breakdown</h3>
-          <div className="breakdown-stats">
-            {examData.questions
-              .reduce((acc, question) => {
-                const type = question.type;
-                if (!acc[type]) {
-                  acc[type] = { total: 0, correct: 0 };
-                }
-                acc[type].total++;
-                const userAnswer = examResult.answers.find(
-                  (a) => a.questionId === question.id
-                );
-                if (userAnswer && userAnswer.isCorrect) {
-                  acc[type].correct++;
-                }
-                return acc;
-              }, {})
-              .map((type, stats) => (
-                <div key={type} className="breakdown-item">
-                  <span className="breakdown-icon">
-                    {getQuestionTypeIcon(type)}
-                  </span>
-                  <div className="breakdown-info">
-                    <span className="breakdown-type">
-                      {getQuestionTypeLabel(type)}
-                    </span>
-                    <span className="breakdown-score">
-                      {stats.correct}/{stats.total} correct
-                    </span>
-                  </div>
-                  <div className="breakdown-percentage">
-                    {Math.round((stats.correct / stats.total) * 100)}%
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
       </div>
 
+      {/* ACTIONS */}
       <div className="results-actions">
         <button
           className="detailed-results-btn"
@@ -150,6 +85,7 @@ const ExamResults = ({
         </div>
       </div>
 
+      {/* DETAILED SECTION */}
       {showDetailedResults && (
         <div className="detailed-results">
           <h3>Detailed Results</h3>
@@ -158,33 +94,26 @@ const ExamResults = ({
               const userAnswer = examResult.answers.find(
                 (a) => a.questionId === question.id
               );
-              const isCorrect = userAnswer?.isCorrect;
+              const earned = userAnswer?.pointsEarned || 0;
 
               return (
                 <div
                   key={question.id}
                   className={`question-review ${
-                    isCorrect ? 'correct' : 'incorrect'
+                    earned > 0 ? 'correct' : 'incorrect'
                   }`}
                 >
                   <div className="question-header">
                     <span className="question-number">Q{index + 1}</span>
-                    <span className="question-type">
-                      {getQuestionTypeIcon(question.type)}{' '}
-                      {getQuestionTypeLabel(question.type)}
-                    </span>
-                    <span
-                      className={`question-status ${
-                        isCorrect ? 'correct' : 'incorrect'
-                      }`}
-                    >
-                      {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                    <span className="points-earned">
+                      {earned}/{question.type === 'resolution' ? 5 : 1} pts
                     </span>
                   </div>
 
                   <div className="question-content">
                     <p className="question-text">{question.question}</p>
 
+                    {/* Show answer depending on type */}
                     {question.type === 'mcq' && (
                       <div className="mcq-options">
                         {question.options.map((option, optionIndex) => (
@@ -236,9 +165,14 @@ const ExamResults = ({
                           </p>
                         </div>
                         <div className="correct-answer">
-                          <strong>Expected Answer:</strong>
+                          <strong>Model Answer:</strong>
                           <p>{question.answer}</p>
                         </div>
+                        {userAnswer?.similarity !== undefined && (
+                          <div>
+                            <em>Similarity score: {userAnswer.similarity}%</em>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

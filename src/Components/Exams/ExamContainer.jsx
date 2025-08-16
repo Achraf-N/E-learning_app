@@ -160,47 +160,100 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
     }
   };
 
+  // Helper to call the scoring API
+  const scoreResolutionAnswer = async (
+    questionId,
+    studentAnswer,
+    modelAnswer
+  ) => {
+    try {
+      const response = await fetch(
+        'http://localhost:8000/api/v1/content/resolution/score-resolution',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ questionId, studentAnswer, modelAnswer }),
+        }
+      );
+      return await response.json(); // { questionId, score, similarity }
+    } catch (err) {
+      console.error('Error scoring resolution:', err);
+      return { score: 0 };
+    }
+  };
+
   const handleExamComplete = async (result) => {
     try {
-      // Mock API call for demonstration - replace with actual API call
-      console.log('Submitting exam results:', {
-        courseId,
-        lessonId,
-        result,
-      });
+      const processedAnswers = await Promise.all(
+        result.answers.map(async (answer) => {
+          const question = examData.questions.find(
+            (q) => q.id === answer.questionId
+          );
 
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
+          if (question.type === 'mcq' || question.type === 'true_false') {
+            const correct = answer.userAnswer === question.answer;
+            return {
+              ...answer,
+              isCorrect: correct,
+              pointsEarned: correct ? 1 : 0,
+            };
+          }
 
-      // Uncomment the following code to use actual API:
-      // const response = await fetch('/api/exams/submit', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     courseId,
-      //     lessonId,
-      //     result
-      //   })
-      // });
-      //
-      // if (!response.ok) {
-      //   throw new Error('Failed to submit exam results');
-      // }
+          if (question.type === 'resolution') {
+            const scoreData = await scoreResolutionAnswer(
+              question.id,
+              answer.userAnswer,
+              question.answer
+            );
 
-      setExamResult(result);
+            // Decide points based on similarity
+            let earned = 0;
+            if (scoreData.score >= 80) earned = 5;
+            else if (scoreData.score >= 50) earned = 2.5;
+            else earned = 0;
+
+            return {
+              ...answer,
+              similarity: scoreData.score,
+              pointsEarned: earned,
+              isCorrect: earned > 0,
+            };
+          }
+
+          return answer;
+        })
+      );
+
+      // Total points possible
+      const totalMaxPoints = examData.questions.reduce((sum, q) => {
+        if (q.type === 'resolution') return sum + 5;
+        return sum + 1; // mcq and t/f
+      }, 0);
+
+      // Total earned
+      const totalPointsEarned = processedAnswers.reduce(
+        (sum, a) => sum + (a.pointsEarned || 0),
+        0
+      );
+
+      // Grade out of 20
+      const finalGrade20 = Math.round(
+        (totalPointsEarned / totalMaxPoints) * 20
+      );
+
+      const finalResult = {
+        answers: processedAnswers,
+        totalPointsEarned,
+        totalMaxPoints,
+        finalGrade20,
+        completedAt: new Date().toISOString(),
+      };
+
+      setExamResult(finalResult);
       setShowResults(true);
-
-      // Notify parent component
-      if (onExamComplete) {
-        onExamComplete(result);
-      }
     } catch (err) {
-      console.error('Error submitting exam results:', err);
-      // Still show results even if submission fails
-      setExamResult(result);
-      setShowResults(true);
+      console.error('Error scoring exam:', err);
+      // fallback...
     }
   };
 
