@@ -25,7 +25,7 @@ const LessonContent = ({
   const [showNextButton, setShowNextButton] = useState(false);
   const [lastScore, setLastScore] = useState(null);
   const [videoWatched, setVideoWatched] = useState(false);
-  const [quizId, setQuizId] = useState(null);
+  const [quizJson, setQuizJson] = useState(null);
   const [quizError, setQuizError] = useState(null);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const LessonContent = ({
   // Reset quiz state when lesson changes
   useEffect(() => {
     setQuizStarted(false);
-    setQuizId(null);
+    setQuizJson(null);
     setQuizError(null);
   }, [lessonContent?.id]);
 
@@ -73,13 +73,13 @@ const LessonContent = ({
 
   // Start quiz using existing quiz ID from lesson data
   const startQuiz = () => {
-    console.log('Starting quiz for lesson:', lessonContent.quizId);
-    if (!lessonContent.quiz_id) {
+    console.log('Starting quiz for lesson:', lessonContent.quiz_json);
+    if (!lessonContent.quiz_json) {
       setQuizError('No quiz available for this lesson');
       return;
     }
 
-    setQuizId(lessonContent.quiz_id);
+    setQuizJson(lessonContent.quiz_json);
     setQuizStarted(true);
   };
 
@@ -87,7 +87,7 @@ const LessonContent = ({
     setQuizStarted(false);
     setQuizPassed(false);
     setShowNextButton(false);
-    setQuizId(null);
+    setQuizJson(null);
     setQuizError(null);
     onNextLesson?.();
   };
@@ -212,7 +212,7 @@ const LessonContent = ({
             <VideoPlayer
               videoUrl={lessonContent.video}
               onStartQuiz={() => {
-                if (lessonContent.quiz_id) {
+                if (lessonContent.quiz_json) {
                   startQuiz();
                 } else {
                   setQuizError('No quiz available for this lesson');
@@ -233,11 +233,11 @@ const LessonContent = ({
         </>
       ) : (
         <Quiz
-          quizId={quizId}
+          quizJson={quizJson}
           onComplete={handleQuizComplete}
           onExitQuiz={() => {
             setQuizStarted(false);
-            setQuizId(null);
+            setQuizJson(null);
             setQuizError(null);
           }}
           onRetake={() => {
