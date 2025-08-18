@@ -13,7 +13,9 @@ const VerifyEmail = () => {
       return;
     }
 
-    fetch(`http://localhost:8000/api/v1/verify-email?token=${token}`)
+    fetch(
+      `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/verify-email?token=${token}`
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.message) {

@@ -168,7 +168,7 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
   ) => {
     try {
       const response = await fetch(
-        'http://localhost:8000/api/v1/content/resolution/score-resolution',
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/resolution/score-resolution',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

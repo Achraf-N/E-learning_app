@@ -222,11 +222,11 @@
 
 ```bash
 # Check if services are running
-curl http://localhost:8000/api/v1/health
+curl https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/health
 curl http://localhost:8080/health
 
 # Test authentication
-curl -X POST http://localhost:8000/api/v1/login \
+curl -X POST https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","mot_de_passe":"password"}'
 

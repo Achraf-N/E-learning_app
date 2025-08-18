@@ -12,7 +12,8 @@ Your e-learning platform uses a microservices architecture with an **API Gateway
 - **Content endpoints** → `content-service` (via `/content/` prefix)
 
 ```javascript
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE =
+  'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1';
 
 // 🔐 Auth endpoints (direct routing)
 POST`${API_BASE}/refresh`; // → auth-service/api/v1/refresh
@@ -33,7 +34,7 @@ GET`${API_BASE}/content/users_progress`; // → content-service/api/v1/users_pro
 
 ## 🔐 **1. Authentication Service (via API Gateway)**
 
-All authentication requests go through: `${API_BASE}` (http://localhost:8000/api/v1)
+All authentication requests go through: `${API_BASE}` (https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1)
 
 ### **Required Endpoints:**
 
@@ -288,7 +289,7 @@ Response (200):
 
 ## 📚 **2. Content Management Service (via API Gateway)**
 
-All content requests go through: `${API_BASE}/content` (http://localhost:8000/api/v1/content)
+All content requests go through: `${API_BASE}/content` (https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content)
 
 ### **Course & Module Endpoints**
 

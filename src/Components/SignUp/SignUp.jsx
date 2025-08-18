@@ -27,15 +27,18 @@ const SignUp = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nom_utilisateur: nomUtilisateur,
-          email,
-          mot_de_passe: password,
-        }),
-      });
+      const response = await fetch(
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/register',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nom_utilisateur: nomUtilisateur,
+            email,
+            mot_de_passe: password,
+          }),
+        }
+      );
 
       if (response.ok) {
         setEmailSent(true);

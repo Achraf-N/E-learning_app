@@ -5,7 +5,8 @@
 
 // API Gateway Base URL
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+  import.meta.env.VITE_API_BASE_URL ||
+  'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1';
 
 // Debug settings
 const DEBUG_API = import.meta.env.VITE_DEBUG_API === 'true';

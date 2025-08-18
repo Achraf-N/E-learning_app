@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Quiz from './Quiz'; // import your Quiz component
 import VideoPlayer from './VideoPlayer';
 
-const API_BASE_URL = 'http://localhost:8000/api/v1/agent';
+const API_BASE_URL =
+  'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/agent';
 
 const LessonContent = ({
   currentView,

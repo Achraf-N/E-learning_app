@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE =
+  'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1';
 
 const ManageCourses = () => {
   const [courses, setCourses] = useState([]);

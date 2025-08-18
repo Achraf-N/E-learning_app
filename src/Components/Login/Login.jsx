@@ -25,11 +25,14 @@ const Login = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, mot_de_passe: motDePasse }),
-      });
+      const response = await fetch(
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/login',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, mot_de_passe: motDePasse }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -56,11 +59,14 @@ const Login = () => {
     const token = credentialResponse.credential;
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/oauth-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
+      const res = await fetch(
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/oauth-login',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        }
+      );
 
       if (!res.ok) {
         const err = await res.json();
