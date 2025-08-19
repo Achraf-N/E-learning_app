@@ -18,7 +18,7 @@ const CoursList = () => {
     const fetchCourses = async () => {
       try {
         const response = await fetch(
-          'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/modules/full'
+          'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/modules/full'
         );
         if (!response.ok) {
           throw new Error('Failed to fetch courses');

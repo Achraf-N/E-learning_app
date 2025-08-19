@@ -63,7 +63,7 @@ const CourseDetails = () => {
     console.log('updateLessonProgress function defined, lessonId:', lessonId);
     try {
       const response = await fetch(
-        `http://https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/user-lesson-progress/?lesson_id=${lessonId}`,
+        `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/user-lesson-progress/?lesson_id=${lessonId}`,
         {
           method: 'PUT',
           headers: {
@@ -115,7 +115,7 @@ const CourseDetails = () => {
         // Try to fetch only the selected course if backend supports it
         let selectedCourse = null;
         let response = await fetch(
-          `http://https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/modules/full/${courseId}`
+          `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/modules/full/${courseId}`
         );
         if (response.ok) {
           selectedCourse = await response.json();
@@ -123,7 +123,7 @@ const CourseDetails = () => {
         } else {
           // fallback to old method if endpoint not available
           response = await fetch(
-            'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/modules/full'
+            'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/modules/full'
           );
           const modules = await response.json();
           selectedCourse = modules.find((module) => module.id === courseId);
@@ -160,7 +160,7 @@ const CourseDetails = () => {
 
       try {
         const response = await fetch(
-          'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/user-lesson-progress/all',
+          'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/user-lesson-progress/all',
           {
             headers: { Authorization: `Bearer ${token}` },
           }
