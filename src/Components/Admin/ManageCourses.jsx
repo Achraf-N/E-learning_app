@@ -27,7 +27,7 @@ const ManageCourses = () => {
       setIsLoadingCourses(true);
       setCoursesError('');
       try {
-        const response = await fetch(`${API_BASE}/content/modules/full`, {
+        const response = await fetch(`${API_BASE}/modules/full`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -124,7 +124,7 @@ const ManageCourses = () => {
       formData.append('title', selectedFile.name.replace('.pdf', ''));
 
       const response = await fetch(
-        `${API_BASE}/content/lessonfiles/upload-and-create`,
+        `${API_BASE}/lessonfiles/upload-and-create`,
         {
           method: 'POST',
           headers: {

@@ -58,7 +58,7 @@ const VimeoUploader = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/modules/full',
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/modules/full',
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -196,7 +196,7 @@ const VimeoUploader = () => {
     try {
       // Step 1: Create upload ticket with Vimeo
       const uploadTicketResponse = await fetch(
-        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/vimeo/upload',
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/vimeo/upload',
         {
           method: 'POST',
           headers: {
@@ -305,7 +305,7 @@ const VimeoUploader = () => {
 
   const updateVimeoMetadata = async (videoId) => {
     await fetch(
-      `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/vimeo/update-metadata/${videoId}`,
+      `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/vimeo/update-metadata/${videoId}`,
       {
         method: 'PATCH',
         headers: {
@@ -322,7 +322,7 @@ const VimeoUploader = () => {
 
   const saveVideoToDatabase = async (videoId) => {
     const response = await fetch(
-      'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/lessons',
+      'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/lessons',
       {
         method: 'POST',
         headers: {

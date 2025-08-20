@@ -84,7 +84,7 @@ const AdminDashboard = () => {
 
       // Load courses count from existing endpoint
       const coursesResponse = await fetch(
-        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/modules/full',
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/modules/full',
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -92,7 +92,7 @@ const AdminDashboard = () => {
 
       // Load user progress to count students
       const studentsResponse = await fetch(
-        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/user-lesson-progress/all',
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/user-lesson-progress/all',
         {
           headers: { Authorization: `Bearer ${token}` },
         }
