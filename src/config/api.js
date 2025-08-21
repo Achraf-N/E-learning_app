@@ -5,8 +5,11 @@
 
 // API Gateway Base URL
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
   'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1';
+
+// Content API URL (for uploads and media)
+const CONTENT_API_URL =
+  'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content';
 
 // Debug settings
 const DEBUG_API = import.meta.env.VITE_DEBUG_API === 'true';
@@ -46,15 +49,35 @@ export const API_CONFIG = {
 
   // User Progress & Analytics (via /content/ prefix)
   PROGRESS: {
-    GET_ALL: `${API_BASE_URL}/content/users_progress`,
+    GET_ALL: `${API_BASE_URL}/userprogress`,
     GET_BY_COURSE: (courseId) =>
-      `${API_BASE_URL}/content/users_progress/course/${courseId}`,
+      `${API_BASE_URL}/userprogress/course/${courseId}`,
     GET_BY_LESSON: (lessonId) =>
-      `${API_BASE_URL}/content/users_progress/?lesson_id=${lessonId}`,
-    UPDATE: (lessonId) =>
-      `${API_BASE_URL}/content/users_progress/?lesson_id=${lessonId}`,
-    DELETE: (lessonId) => `${API_BASE_URL}/content/users_progress/${lessonId}`,
-    STATS: `${API_BASE_URL}/content/users_progress/stats`,
+      `${API_BASE_URL}/userprogress/?lesson_id=${lessonId}`,
+    UPDATE: (lessonId) => `${API_BASE_URL}/userprogress/?lesson_id=${lessonId}`,
+    DELETE: (lessonId) => `${API_BASE_URL}/userprogress/${lessonId}`,
+    STATS: `${API_BASE_URL}/userprogress/stats`,
+  },
+
+  // Module Progress (Course-level progress)
+  MODULE_PROGRESS: {
+    CREATE: `${API_BASE_URL}/userprogress`,
+    GET_BY_USER: (userId) => `${API_BASE_URL}/userprogress?user_id=${userId}`,
+    GET_BY_MODULE: (moduleId) =>
+      `${API_BASE_URL}/userprogress?module_id=${moduleId}`,
+    UPDATE: (progressId) => `${API_BASE_URL}/userprogress/${progressId}`,
+    DELETE: (progressId) => `${API_BASE_URL}/userprogress/${progressId}`,
+    UNLOCK_MODULE: (progressId) =>
+      `${API_BASE_URL}/userprogress/${progressId}/unlock`,
+    GET_BY_SEMESTER: (userId, semester) =>
+      `${API_BASE_URL}/userprogress?user_id=${userId}&semester=${semester}`,
+    CHECK_SEMESTER_COMPLETION: (userId, semester) =>
+      `${API_BASE_URL}/userprogress/semester/${semester}/completion?user_id=${userId}`,
+    INITIALIZE: `${API_BASE_URL}/userprogress/initialize`,
+    DASHBOARD: `${API_BASE_URL}/userprogress/dashboard/progress`,
+    STATS: `${API_BASE_URL}/userprogress/stats`,
+    UPDATE_PERCENTAGE: (moduleId, percentage) =>
+      `${API_BASE_URL}/userprogress/${moduleId}/progress/${percentage}`,
   },
 
   // Content & Lessons (via /content/ prefix)

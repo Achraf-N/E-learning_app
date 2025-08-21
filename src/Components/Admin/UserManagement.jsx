@@ -89,7 +89,7 @@ const UserManagement = () => {
         // Handle the actual API response structure
         const users = data.users || [];
         // Map the API fields to our component fields
-        const mappedUsers = users.map(user => ({
+        const mappedUsers = users.map((user) => ({
           id: user.id,
           email: user.email,
           // Map nom_utilisateur to first_name for display
@@ -99,7 +99,7 @@ const UserManagement = () => {
           role: user.roles?.length > 0 ? user.roles[0].nom : 'student',
           semester: user.semester || 'S1', // Default to S1 if not specified
           statut_compte: user.statut_compte,
-          is_verified: user.is_verified
+          is_verified: user.is_verified,
         }));
         setUsers(mappedUsers);
       } else {
@@ -142,7 +142,9 @@ const UserManagement = () => {
   };
 
   const handleUserUpdate = (updatedUser) => {
-    setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+    setUsers((prev) =>
+      prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+    );
     setSuccessMessage('User updated successfully!');
   };
 
@@ -162,7 +164,8 @@ const UserManagement = () => {
       password: '',
       first_name: user.first_name || user.nom_utilisateur || '',
       last_name: user.last_name || '',
-      role: user.role || (user.roles?.length > 0 ? user.roles[0].nom : 'student'),
+      role:
+        user.role || (user.roles?.length > 0 ? user.roles[0].nom : 'student'),
       semester: user.semester || 'S1',
     });
     setSelectedUser(user);
@@ -227,11 +230,7 @@ const UserManagement = () => {
 
   const handleDeleteUser = async (user) => {
     const userName = user.first_name || user.nom_utilisateur || user.email;
-    if (
-      !window.confirm(
-        `Are you sure you want to delete ${userName}?`
-      )
-    ) {
+    if (!window.confirm(`Are you sure you want to delete ${userName}?`)) {
       return;
     }
 
@@ -259,10 +258,11 @@ const UserManagement = () => {
   // Filter users
   const filteredUsers = users.filter((user) => {
     // Handle the actual API role structure
-    const userRole = user.role || (user.roles?.length > 0 ? user.roles[0].nom : 'student');
+    const userRole =
+      user.role || (user.roles?.length > 0 ? user.roles[0].nom : 'student');
     const matchesTab =
       activeTab === 'students'
-        ? (userRole === 'student' || user.roles?.length === 0) // Users with no roles are treated as students
+        ? userRole === 'student' || user.roles?.length === 0 // Users with no roles are treated as students
         : userRole === 'teacher';
     const matchesSearch =
       !searchTerm ||
@@ -407,11 +407,7 @@ const UserManagement = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      {
-                        users.filter(
-                          (u) => u.role === 'teacher'
-                        ).length
-                      }
+                      {users.filter((u) => u.role === 'teacher').length}
                     </p>
                     <p className="text-xs text-gray-500">Teachers</p>
                   </div>
@@ -551,11 +547,7 @@ const UserManagement = () => {
                   </svg>
                   <span>Teachers</span>
                   <span className="ml-2 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
-                    {
-                      users.filter(
-                        (u) => u.role === 'teacher'
-                      ).length
-                    }
+                    {users.filter((u) => u.role === 'teacher').length}
                   </span>
                 </div>
               </button>
@@ -735,8 +727,12 @@ const UserManagement = () => {
                                 <div className="flex items-start justify-between mb-3">
                                   <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center">
                                     <span className="text-white font-semibold text-sm">
-                                      {student.first_name?.[0] || student.nom_utilisateur?.[0] || 'U'}
-                                      {student.last_name?.[0] || student.nom_utilisateur?.[1] || ''}
+                                      {student.first_name?.[0] ||
+                                        student.nom_utilisateur?.[0] ||
+                                        'U'}
+                                      {student.last_name?.[0] ||
+                                        student.nom_utilisateur?.[1] ||
+                                        ''}
                                     </span>
                                   </div>
                                   <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -788,7 +784,9 @@ const UserManagement = () => {
                                 </div>
                                 <div className="flex-1">
                                   <h4 className="font-semibold text-gray-900 mb-1">
-                                    {student.first_name || student.nom_utilisateur || 'Unknown User'}
+                                    {student.first_name ||
+                                      student.nom_utilisateur ||
+                                      'Unknown User'}
                                   </h4>
                                   <p
                                     className="text-sm text-gray-500 mb-3 truncate"
@@ -808,9 +806,24 @@ const UserManagement = () => {
                                   </span>
                                   <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                     <span className="text-xs text-blue-600 flex items-center">
-                                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                      <svg
+                                        className="w-3 h-3 mr-1"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                        />
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                        />
                                       </svg>
                                       Click for details
                                     </span>
@@ -864,8 +877,12 @@ const UserManagement = () => {
                           <div className="flex items-start justify-between mb-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center">
                               <span className="text-white font-semibold text-sm">
-                                {teacher.first_name?.[0] || teacher.nom_utilisateur?.[0] || 'U'}
-                                {teacher.last_name?.[0] || teacher.nom_utilisateur?.[1] || ''}
+                                {teacher.first_name?.[0] ||
+                                  teacher.nom_utilisateur?.[0] ||
+                                  'U'}
+                                {teacher.last_name?.[0] ||
+                                  teacher.nom_utilisateur?.[1] ||
+                                  ''}
                               </span>
                             </div>
                             <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -917,7 +934,9 @@ const UserManagement = () => {
                           </div>
                           <div className="flex-1">
                             <h4 className="font-semibold text-gray-900 mb-1">
-                              {teacher.first_name || teacher.nom_utilisateur || 'Unknown User'}
+                              {teacher.first_name ||
+                                teacher.nom_utilisateur ||
+                                'Unknown User'}
                             </h4>
                             <p
                               className="text-sm text-gray-500 mb-3 truncate"
@@ -943,9 +962,24 @@ const UserManagement = () => {
                             </span>
                             <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <span className="text-xs text-purple-600 flex items-center">
-                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <svg
+                                  className="w-3 h-3 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                  />
                                 </svg>
                                 Click for details
                               </span>
