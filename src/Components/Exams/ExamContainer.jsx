@@ -14,6 +14,8 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
     fetchExamData();
   }, [courseId, lessonId]);
 
+  /*
+  //mock Data
   const fetchExamData = async () => {
     try {
       setIsLoading(true);
@@ -159,6 +161,40 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
       setIsLoading(false);
     }
   };
+
+  */
+
+  const fetchExamData = async () => {
+  try {
+    setIsLoading(true);
+    setError(null);
+
+    // Build the API URL dynamically
+    const apiUrl = `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/exams/user/${courseId}/module/${lessonId}`;
+
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch exam data: ${response.status}`);
+    }
+
+    const data = await response.json();
+    // Assuming your backend returns an array of exams, take the first one
+    // or adapt this depending on how you want to handle multiple exams
+    const exam = Array.isArray(data) && data.length > 0 ? data[0] : null;
+
+    if (!exam) {
+      throw new Error('No exam found for this module and user');
+    }
+
+    setExamData(exam);
+  } catch (err) {
+    setError(err.message);
+    console.error('Error fetching exam data:', err);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   // Helper to call the scoring API
   const scoreResolutionAnswer = async (

@@ -31,6 +31,82 @@ const CourseDetails = () => {
   const token = localStorage.getItem('access_token');
   const userId = token ? jwtDecode(token).sub : null;
 
+  // Function to handle exam upload when starting last lesson
+  const handleStartLastLesson = async () => {
+    if (!course || !userId || !course.lessons?.length) return;
+
+    // Get the last lesson based on orderindex
+    const lastLesson = course.lessons.reduce((prev, current) =>
+      current.orderindex > prev.orderindex ? current : prev
+    );
+
+    // Only trigger for last lesson
+    if (currentView === lastLesson.id) {
+      console.log(userId, course.id, course.lessons);
+      try {
+        await fetch(
+          'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/upload-exam',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              module_id: course.id,
+              user_id: userId,
+              supabase_urls: course.lessons
+                .map((lesson) => lesson.pdf)
+                .filter((url) => url),
+            }),
+          }
+        );
+        console.log('Exam upload request sent for last lesson');
+      } catch (err) {
+        console.error('Error uploading exam:', err);
+      }
+    }
+  };
+
+  // Function to generate exam after last lesson quiz completion
+  const handleGenerateExamAfterQuiz = async () => {
+    if (!course) return;
+
+    setLockMessage('⏳ Generating your final exam...');
+
+    try {
+      const response = await fetch(
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/exams/create',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            module_id: course.id,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to generate exam');
+      }
+
+      console.log('Exam generation request completed successfully');
+
+      // Show success message that exam is ready
+      setLockMessage(
+        "🎉 Congratulations! You've completed all lessons. Your final exam has been generated and is now available in the sidebar."
+      );
+      setTimeout(() => setLockMessage(''), 8000);
+    } catch (err) {
+      console.error('Error generating exam:', err);
+      setLockMessage('❌ Error generating exam. Please try again later.');
+      setTimeout(() => setLockMessage(''), 5000);
+    }
+  };
+
   // Enhanced setCurrentView to update URL
   const setCurrentViewWithURL = useCallback(
     (view) => {
@@ -58,6 +134,19 @@ const CourseDetails = () => {
       setCurrentView('about');
     }
   }, [lessonId, location.pathname]);
+
+  // Call handleStartLastLesson when user navigates to the last lesson
+  useEffect(() => {
+    if (!course?.lessons?.length) return;
+
+    const lastLesson = course.lessons.reduce((prev, current) =>
+      current.orderindex > prev.orderindex ? current : prev
+    );
+
+    if (currentView === lastLesson.id) {
+      handleStartLastLesson();
+    }
+  }, [currentView, course?.lessons]);
 
   const updateLessonProgress = async (lessonId) => {
     console.log('updateLessonProgress function defined, lessonId:', lessonId);
@@ -87,12 +176,18 @@ const CourseDetails = () => {
           lesson.id === lessonId ? { ...lesson, completed: true } : lesson
         );
 
-        // If all lessons completed, auto-open exam
-        const total = nextStates.length;
-        const completed = nextStates.filter((l) => l.completed).length;
-        if (total > 0 && completed === total) {
-          setTimeout(() => setCurrentViewWithURL('exam'), 0);
+        // Check if this is the last lesson and call exam generation API
+        const lastLesson = course.lessons.reduce((prev, current) =>
+          current.orderindex > prev.orderindex ? current : prev
+        );
+
+        if (lessonId === lastLesson.id) {
+          handleGenerateExamAfterQuiz();
         }
+
+        // Don't auto-redirect to exam - let user navigate manually
+        // User will see success message and can click exam in sidebar when ready
+
         return nextStates;
       });
     } catch (err) {
