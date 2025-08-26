@@ -55,16 +55,18 @@ const VideoPlayer = ({
   const calculateWatchedDuration = () =>
     watchedSegments.reduce((total, [start, end]) => total + (end - start), 0);
 
+  const watchedDuration = calculateWatchedDuration();
+  const [hasEverBeenUnlocked, setHasEverBeenUnlocked] = useState(false);
+
   // Débloquer quiz ?
   const isQuizUnlocked = () => {
-    if (videoWatched) return true;
-
+    if (videoWatched || hasEverBeenUnlocked) return true;
+    let currentlyUnlocked = false;
     // For YouTube videos, auto-unlock after 10 seconds of playing (more lenient)
     if (isYouTube(videoUrl) && isPlaying && duration > 0) {
       const currentTime = playerRef.current?.getCurrentTime?.() || 0;
       if (currentTime >= 10) {
-        console.log('YouTube auto-unlock after 10 seconds');
-        return true;
+        currentlyUnlocked = true;
       }
     }
 
@@ -72,33 +74,19 @@ const VideoPlayer = ({
     if (isYouTube(videoUrl) && youtubePlayStartTime && isPlaying) {
       const playDuration = (Date.now() - youtubePlayStartTime) / 1000;
       if (playDuration >= 15) {
-        console.log('YouTube auto-unlock after 15 seconds of continuous play');
-        return true;
+        currentlyUnlocked = true;
       }
     }
 
     if (!duration) return false;
     const watchedDuration = calculateWatchedDuration();
     const threshold = duration * unlockThreshold;
-    const unlocked = watchedDuration >= threshold;
+    currentlyUnlocked = currentlyUnlocked || watchedDuration >= threshold;
 
-    // Debug logging
-    console.log('Quiz unlock check:', {
-      videoWatched,
-      duration,
-      watchedDuration,
-      threshold,
-      unlocked,
-      watchedSegments,
-      isYouTube: isYouTube(videoUrl),
-      isPlaying,
-      currentTime: playerRef.current?.getCurrentTime?.() || 0,
-      playDuration: youtubePlayStartTime
-        ? (Date.now() - youtubePlayStartTime) / 1000
-        : 0,
-    });
-
-    return unlocked;
+    if (currentlyUnlocked) {
+      setHasEverBeenUnlocked(true);
+    }
+    return currentlyUnlocked;
   };
 
   // Gestion clic quiz
