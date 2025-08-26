@@ -148,7 +148,7 @@ const CourseDetails = () => {
     }
   }, [currentView, course?.lessons]);
 
-  const updateLessonProgress = async (lessonId) => {
+  const updateLessonProgress = async (lessonId,score) => {
     console.log('updateLessonProgress function defined, lessonId:', lessonId);
     try {
       const response = await fetch(
@@ -160,7 +160,8 @@ const CourseDetails = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            completed: true, // only the body content matching UserLessonProgressUpdate
+            completed: true,
+            score: score, // only the body content matching UserLessonProgressUpdate
           }),
         }
       );
@@ -173,7 +174,9 @@ const CourseDetails = () => {
       // Update lessonStates locally to mark lesson as completed
       setLessonStates((prevStates) => {
         const nextStates = prevStates.map((lesson) =>
-          lesson.id === lessonId ? { ...lesson, completed: true } : lesson
+          lesson.id === lessonId
+            ? { ...lesson, completed: true, score: updatedProgress.score }
+            : lesson
         );
 
         // Check if this is the last lesson and call exam generation API
