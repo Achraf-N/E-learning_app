@@ -16,6 +16,7 @@ import {
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import { jwtDecode } from 'jwt-decode';
 
 const CoursList = () => {
   const { t, i18n } = useTranslation();
@@ -32,24 +33,44 @@ const CoursList = () => {
     const token = localStorage.getItem('access_token');
     setIsLoggedIn(!!token);
 
-    fetchCourses();
+    // Fetch courses first, then progress data
+    const fetchData = async () => {
+      await fetchCourses();
 
-    if (token) {
-      initializeUserProgressIfNeeded().then(() => {
+      if (token) {
+        await initializeUserProgressIfNeeded();
+        await fetchUserProgress();
+        await checkSemesterCompletions();
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Add event listener for progress updates
+  useEffect(() => {
+    const handleProgressUpdate = () => {
+      if (isLoggedIn) {
         fetchUserProgress();
         checkSemesterCompletions();
-      });
-    }
-  }, []);
+      }
+    };
+
+    // Listen for custom events when progress is updated
+    window.addEventListener('progressUpdated', handleProgressUpdate);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('progressUpdated', handleProgressUpdate);
+    };
+  }, [isLoggedIn]);
 
   const initializeUserProgressIfNeeded = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const userProfile = JSON.parse(
-        localStorage.getItem('user_profile') || '{}'
-      );
+      const userId = token ? jwtDecode(token).sub : null;
 
-      if (!userProfile.id || !token) return;
+      if (!userId || !token) return;
 
       // Initialize user progress if they're new
       await fetch(API_CONFIG.MODULE_PROGRESS.INITIALIZE, {
@@ -59,13 +80,14 @@ const CoursList = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: userProfile.id,
+          user_id: userId,
         }),
       });
     } catch (error) {
       console.log('User progress already initialized or error:', error);
     }
   };
+
   const fetchCourses = async () => {
     try {
       const response = await fetch(
@@ -103,19 +125,15 @@ const CoursList = () => {
     }
   };
 
-  // Remove the determineSemesterFromId function as we now use PostgreSQL data
-
   const fetchUserProgress = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const userProfile = JSON.parse(
-        localStorage.getItem('user_profile') || '{}'
-      );
+      const userId = token ? jwtDecode(token).sub : null;
 
-      if (!userProfile.id) return;
+      if (!userId) return;
 
       const response = await fetch(
-        API_CONFIG.MODULE_PROGRESS.GET_BY_USER(userProfile.id),
+        API_CONFIG.MODULE_PROGRESS.GET_BY_USER(userId),
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -141,11 +159,9 @@ const CoursList = () => {
   const checkSemesterCompletions = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const userProfile = JSON.parse(
-        localStorage.getItem('user_profile') || '{}'
-      );
+      const userId = token ? jwtDecode(token).sub : null;
 
-      if (!userProfile.id) return;
+      if (!userId) return;
 
       // Get all available semesters from courses
       const availableSemesters = [
@@ -165,7 +181,7 @@ const CoursList = () => {
         try {
           const response = await fetch(
             API_CONFIG.MODULE_PROGRESS.CHECK_SEMESTER_COMPLETION(
-              userProfile.id,
+              userId,
               semester
             ),
             {
@@ -254,8 +270,8 @@ const CoursList = () => {
     };
     return semesterMap[semester] || `Semester ${semester.slice(1)}`;
   };
+
   const getLocalizedCourse = (course) => {
-    console.log(course);
     if (i18n.language === 'fr') {
       return {
         id: course.id,

@@ -62,7 +62,7 @@ export const API_CONFIG = {
   // Module Progress (Course-level progress)
   MODULE_PROGRESS: {
     CREATE: `${API_BASE_URL}/userprogress`,
-    GET_BY_USER: (userId) => `${API_BASE_URL}/userprogress?user_id=${userId}`,
+    GET_BY_USER: (userId) => `${API_BASE_URL}/userprogress/?user_id=${userId}`,
     GET_BY_MODULE: (moduleId) =>
       `${API_BASE_URL}/userprogress?module_id=${moduleId}`,
     UPDATE: (progressId) => `${API_BASE_URL}/userprogress/${progressId}`,

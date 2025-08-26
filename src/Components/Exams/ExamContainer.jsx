@@ -9,10 +9,17 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showResults, setShowResults] = useState(false);
-
+  const [startTime, setStartTime] = useState(null);
+  const token = localStorage.getItem('access_token');
   useEffect(() => {
     fetchExamData();
   }, [courseId, lessonId]);
+
+  useEffect(() => {
+    if (examData) {
+      setStartTime(Date.now()); // start timer when exam loads
+    }
+  }, [examData]);
 
   /*
   //mock Data
@@ -163,38 +170,67 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
   };
 
   */
-
   const fetchExamData = async () => {
-  try {
-    setIsLoading(true);
-    setError(null);
+    try {
+      setIsLoading(true);
+      setError(null);
 
-    // Build the API URL dynamically
-    const apiUrl = `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/exams/user/${courseId}/module/${lessonId}`;
+      const apiUrl = `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/exams/module/${courseId}`;
 
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch exam data: ${response.status}`);
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // 🔑 send token here
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch exam data: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const exam = Array.isArray(data) && data.length > 0 ? data[0] : null;
+
+      if (!exam) {
+        throw new Error('No exam found for this module');
+      }
+
+      const transformedExam = {
+        id: exam.id,
+        module_id: exam.module_id,
+        score: exam.score,
+        status: exam.status,
+        title: exam.content.title,
+        questions: exam.content.questions.map((q) => ({
+          id: q.id,
+          question: q.question,
+          type: q.type,
+          options: q.options || [],
+          answer: q.answer,
+          answerIndex: q.answerIndex ?? null,
+        })),
+        total_questions: exam.total_questions,
+      };
+
+      setExamData(transformedExam);
+      if (exam.status === 'passed') {
+        setExamResult({
+          totalPointsEarned: exam.score,
+          totalMaxPoints: 20,
+          finalGrade20: exam.score,
+          answers: exam.answers || [],
+          completedAt: exam.completedAt,
+        });
+        setShowResults(true);
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching exam data:', err);
+    } finally {
+      setIsLoading(false);
     }
-
-    const data = await response.json();
-    // Assuming your backend returns an array of exams, take the first one
-    // or adapt this depending on how you want to handle multiple exams
-    const exam = Array.isArray(data) && data.length > 0 ? data[0] : null;
-
-    if (!exam) {
-      throw new Error('No exam found for this module and user');
-    }
-
-    setExamData(exam);
-  } catch (err) {
-    setError(err.message);
-    console.error('Error fetching exam data:', err);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   // Helper to call the scoring API
   const scoreResolutionAnswer = async (
@@ -204,10 +240,13 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
   ) => {
     try {
       const response = await fetch(
-        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content/resolution/score-resolution',
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/resolution/score-resolution',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({ questionId, studentAnswer, modelAnswer }),
         }
       );
@@ -220,13 +259,38 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
 
   const handleExamComplete = async (result) => {
     try {
+      const endTime = Date.now();
+      const timeSpentSeconds = startTime
+        ? Math.floor((endTime - startTime) / 1000)
+        : 0;
+
       const processedAnswers = await Promise.all(
         result.answers.map(async (answer) => {
           const question = examData.questions.find(
             (q) => q.id === answer.questionId
           );
+          if (question.type === 'mcq') {
+            // Use index or letter comparison as we fixed earlier
+            let correct = false;
 
-          if (question.type === 'mcq' || question.type === 'true_false') {
+            if (typeof answer.userAnswer === 'number') {
+              correct = answer.userAnswer === question.answerIndex;
+            } else if (typeof answer.userAnswer === 'string') {
+              const userIndex = question.options.findIndex(
+                (opt) => opt === answer.userAnswer
+              );
+              correct = userIndex === question.answerIndex;
+            }
+
+            return {
+              ...answer,
+              isCorrect: correct,
+              pointsEarned: correct ? 1 : 0,
+            };
+          }
+
+          if (question.type === 'true_false') {
+            // Simply compare strings "True" / "False"
             const correct = answer.userAnswer === question.answer;
             return {
               ...answer,
@@ -259,7 +323,7 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
           return answer;
         })
       );
-
+      console.log(examData);
       // Total points possible
       const totalMaxPoints = examData.questions.reduce((sum, q) => {
         if (q.type === 'resolution') return sum + 5;
@@ -287,6 +351,39 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
 
       setExamResult(finalResult);
       setShowResults(true);
+      // 🔹 SAVE RESULTS TO POSTGRES
+      if (examData.id && examData.status !== 'passed') {
+        await fetch(
+          `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/exams/update/${examData.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              score: finalGrade20,
+              correct_answers: processedAnswers.filter((a) => a.isCorrect)
+                .length,
+              total_questions: processedAnswers.length,
+              time_spent: timeSpentSeconds || 0,
+              status: finalGrade20 >= 10 ? 'passed' : 'failed',
+            }),
+          }
+        );
+      }
+      if (examData.module_id) {
+        await fetch(
+          `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/userprogress/${examData.module_id}/complete`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
     } catch (err) {
       console.error('Error scoring exam:', err);
       // fallback...
