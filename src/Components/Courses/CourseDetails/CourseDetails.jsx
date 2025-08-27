@@ -55,11 +55,10 @@ const CourseDetails = () => {
             body: JSON.stringify({
               module_id: course.id,
               user_id: userId,
-              supabase_urls: course.summary_pdf ? [course.summary_pdf] : [],,
+              supabase_urls: course.summary_pdf ? [course.summary_pdf] : [],
             }),
           }
         );
-        console.log('Exam upload request sent for last lesson');
       } catch (err) {
         console.error('Error uploading exam:', err);
       }
