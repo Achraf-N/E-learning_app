@@ -55,9 +55,7 @@ const CourseDetails = () => {
             body: JSON.stringify({
               module_id: course.id,
               user_id: userId,
-              supabase_urls: course.lessons
-                .map((lesson) => lesson.pdf)
-                .filter((url) => url),
+              supabase_urls: course.summary_pdf ? [course.summary_pdf] : [],,
             }),
           }
         );
