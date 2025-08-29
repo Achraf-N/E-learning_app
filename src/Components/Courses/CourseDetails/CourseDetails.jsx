@@ -31,6 +31,50 @@ const CourseDetails = () => {
   const token = localStorage.getItem('access_token');
   const userId = token ? jwtDecode(token).sub : null;
 
+  // shared exam fetcher
+  const fetchExistingExam = async (moduleId, token) => {
+    try {
+      const response = await fetch(
+        `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/exams/module/${moduleId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) return null;
+
+      const exams = await response.json();
+      return Array.isArray(exams) && exams.length > 0 ? exams[0] : null;
+    } catch (err) {
+      console.error('Error fetching exam:', err);
+      return null;
+    }
+  };
+  const isExamValid = (exam) => {
+    if (!exam || !exam.content || !Array.isArray(exam.content.questions)) {
+      return false;
+    }
+
+    const questions = exam.content.questions;
+
+    // exam must have at least 1 question
+    if (questions.length === 0) return false;
+
+    // exam must NOT contain placeholders like "manquante" or "non traité"
+    /*
+  const hasInvalid = questions.some(
+    (q) =>
+      !q.question ||
+      q.question.toLowerCase().includes("manquante") ||
+      q.question.toLowerCase().includes("non traité")
+  );
+  */
+    return true;
+  };
+
   // Function to handle exam upload when starting last lesson
   const handleStartLastLesson = async () => {
     if (!course || !userId || !course.lessons?.length) return;
@@ -44,6 +88,14 @@ const CourseDetails = () => {
     if (currentView === lastLesson.id) {
       console.log(userId, course.id, course.lessons);
       try {
+        const existingExam = await fetchExistingExam(course.id, token);
+
+        if (isExamValid(existingExam)) {
+          setLockMessage('✅ Your exam is already ready in the sidebar.');
+          setTimeout(() => setLockMessage(''), 6000);
+          return;
+        }
+
         await fetch(
           'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/upload-exam',
           {
@@ -72,6 +124,14 @@ const CourseDetails = () => {
     setLockMessage('⏳ Generating your final exam...');
 
     try {
+      const existingExam = await fetchExistingExam(course.id, token);
+
+      if (isExamValid(existingExam)) {
+        setLockMessage('✅ Your exam is already ready in the sidebar.');
+        setTimeout(() => setLockMessage(''), 6000);
+        return;
+      }
+
       const response = await fetch(
         'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/exams/create',
         {
@@ -145,7 +205,7 @@ const CourseDetails = () => {
     }
   }, [currentView, course?.lessons]);
 
-  const updateLessonProgress = async (lessonId,score) => {
+  const updateLessonProgress = async (lessonId, score) => {
     console.log('updateLessonProgress function defined, lessonId:', lessonId);
     try {
       const response = await fetch(

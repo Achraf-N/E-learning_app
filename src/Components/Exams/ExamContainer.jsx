@@ -188,12 +188,45 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
       if (!response.ok) {
         throw new Error(`Failed to fetch exam data: ${response.status}`);
       }
+      // Check for invalid/missing questions
 
       const data = await response.json();
       const exam = Array.isArray(data) && data.length > 0 ? data[0] : null;
 
       if (!exam) {
         throw new Error('No exam found for this module');
+      }
+      const hasInvalid = exam.content.questions.some(
+        (q) =>
+          !q.question ||
+          q.question.toLowerCase().includes('manquante') ||
+          q.question.toLowerCase().includes('non traité')
+      );
+
+      if (hasInvalid) {
+        const altResponse = await fetch(
+          `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/alternative-exam/${courseId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!altResponse.ok)
+          throw new Error('Failed to fetch alternative exam');
+
+        const altData = await altResponse.json();
+
+        if (altData) {
+
+          //exam.title = altData[0].title;
+          exam.content = altData.content; // replace exam with alternative
+          console.log('after insert aternative exam in exam component');
+          console.log(exam);
+        }
       }
 
       const transformedExam = {
