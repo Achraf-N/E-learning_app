@@ -22,6 +22,7 @@ const ExamResults = ({
   };
 
   const formatDate = (dateString) => {
+    console.log(examResult);
     return new Date(dateString).toLocaleString();
   };
 

@@ -221,7 +221,6 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
         const altData = await altResponse.json();
 
         if (altData) {
-
           //exam.title = altData[0].title;
           exam.content = altData.content; // replace exam with alternative
           console.log('after insert aternative exam in exam component');
@@ -244,6 +243,8 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
           answerIndex: q.answerIndex ?? null,
         })),
         total_questions: exam.total_questions,
+        answers: exam.user_answer || [],
+        completedAt: exam.completed_at,
       };
 
       setExamData(transformedExam);
@@ -252,7 +253,7 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
           totalPointsEarned: exam.score,
           totalMaxPoints: 20,
           finalGrade20: exam.score,
-          answers: exam.answers || [],
+          answers: exam.user_answer || [],
           completedAt: exam.completedAt,
         });
         setShowResults(true);
@@ -381,11 +382,12 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
         finalGrade20,
         completedAt: new Date().toISOString(),
       };
-
+      console.log('Final exam result:', finalResult);
       setExamResult(finalResult);
       setShowResults(true);
       // 🔹 SAVE RESULTS TO POSTGRES
       if (examData.id && examData.status !== 'passed') {
+        console.log('Saving exam results to server...', processedAnswers);
         await fetch(
           `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/exams/update/${examData.id}`,
           {
@@ -401,6 +403,7 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
               total_questions: processedAnswers.length,
               time_spent: timeSpentSeconds || 0,
               status: finalGrade20 >= 10 ? 'passed' : 'failed',
+              user_answer: processedAnswers,
             }),
           }
         );
