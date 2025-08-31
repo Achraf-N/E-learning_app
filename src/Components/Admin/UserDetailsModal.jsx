@@ -91,7 +91,7 @@ const UserDetailsModal = ({ user, isOpen, onClose, onUpdate, onDelete }) => {
   const loadUserModuleProgress = async () => {
     try {
       const token = localStorage.getItem('access_token');
-
+      console.log(user);
       const response = await fetch(
         API_CONFIG.MODULE_PROGRESS.GET_BY_USER(user.id),
         {

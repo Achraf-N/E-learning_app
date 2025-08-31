@@ -259,10 +259,10 @@ const UserManagement = () => {
   const filteredUsers = users.filter((user) => {
     // Handle the actual API role structure
     const userRole =
-      user.role || (user.roles?.length > 0 ? user.roles[0].nom : 'student');
+      user.role || (user.roles?.length > 0 ? user.roles[0].nom : 'user');
     const matchesTab =
       activeTab === 'students'
-        ? userRole === 'student' || user.roles?.length === 0 // Users with no roles are treated as students
+        ? userRole === 'user' || user.roles?.length === 0 // Users with no roles are treated as students
         : userRole === 'teacher';
     const matchesSearch =
       !searchTerm ||

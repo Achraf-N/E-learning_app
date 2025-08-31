@@ -170,7 +170,7 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
   };
 
   */
-  const fetchExamData = async () => {
+  const fetchExamData = async (version = 1) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -205,7 +205,7 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
 
       if (hasInvalid) {
         const altResponse = await fetch(
-          `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/alternative-exam/${courseId}`,
+          `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/alternative-exam/${courseId}?version=${version}`,
           {
             method: 'GET',
             headers: {
@@ -245,6 +245,7 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
         total_questions: exam.total_questions,
         answers: exam.user_answer || [],
         completedAt: exam.completed_at,
+        attempt_number: exam.attempt_number || 1,
       };
 
       setExamData(transformedExam);
@@ -430,7 +431,7 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
     setShowResults(false);
     setExamResult(null);
     // Optionally fetch new exam data
-    fetchExamData();
+    fetchExamData(examData.attempt_number + 1);
   };
 
   const handleCloseResults = () => {

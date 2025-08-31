@@ -77,9 +77,11 @@ const ExamResults = ({
         </button>
 
         <div className="action-buttons">
-          <button className="retake-exam-btn" onClick={onRetakeExam}>
-            Retake Exam
-          </button>
+          {examResult.finalGrade20 < 10 && (
+            <button className="retake-exam-btn" onClick={onRetakeExam}>
+              Retake Exam
+            </button>
+          )}
           <button className="close-exam-btn" onClick={onCloseResults}>
             Close
           </button>
