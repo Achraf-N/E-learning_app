@@ -3,6 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import { Link } from 'react-router-dom';
 import { API_CONFIG } from '../../config/api';
 import UserDetailsModal from './UserDetailsModal';
+import HealthStatusIndicator from '../Ui/HealthStatusIndicator';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -189,17 +190,15 @@ const UserManagement = () => {
       const method = modalType === 'add' ? 'POST' : 'PUT';
 
       const body = {
+        nom_utilisateur: formData.first_name + ' ' + formData.last_name,
         email: formData.email,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        role: formData.role,
-        ...(formData.role === 'student' && { semester: formData.semester }),
+        mot_de_passe: formData.password,
       };
 
       if (modalType === 'add' || formData.password) {
         body.password = formData.password;
       }
-
+      console.log('Submitting user data:', body);
       const response = await fetch(url, {
         method,
         headers: {
@@ -357,59 +356,66 @@ const UserManagement = () => {
               </p>
             </div>
 
-            {/* Stats Cards */}
-            <div className="mt-6 lg:mt-0 flex space-x-4">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <svg
-                      className="w-4 h-4 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {
-                        users.filter(
-                          (u) => u.role === 'student' || u.roles?.length === 0
-                        ).length
-                      }
-                    </p>
-                    <p className="text-xs text-gray-500">Students</p>
+            <div className="mt-6 lg:mt-0 flex flex-col lg:flex-row items-start lg:items-center space-y-4 lg:space-y-0 lg:space-x-6">
+              {/* Health Status Indicator */}
+              <div className="relative">
+                <HealthStatusIndicator showDetails={true} />
+              </div>
+
+              {/* Stats Cards */}
+              <div className="flex space-x-4">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                      <svg
+                        className="w-4 h-4 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {
+                          users.filter(
+                            (u) => u.role === 'student' || u.roles?.length === 0
+                          ).length
+                        }
+                      </p>
+                      <p className="text-xs text-gray-500">Students</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                    <svg
-                      className="w-4 h-4 text-purple-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {users.filter((u) => u.role === 'teacher').length}
-                    </p>
-                    <p className="text-xs text-gray-500">Teachers</p>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                      <svg
+                        className="w-4 h-4 text-purple-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {users.filter((u) => u.role === 'teacher').length}
+                      </p>
+                      <p className="text-xs text-gray-500">Teachers</p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -7,6 +7,10 @@
 const API_BASE_URL =
   'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1';
 
+// Health Check Base URL (without /api/v1 prefix)
+const HEALTH_BASE_URL =
+  'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io';
+
 // Content API URL (for uploads and media)
 const CONTENT_API_URL =
   'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/content';
@@ -197,6 +201,13 @@ export const ERROR_TYPES = {
   SERVER_ERROR: 'SERVER_ERROR',
   TIMEOUT_ERROR: 'TIMEOUT_ERROR',
   UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+};
+
+// Health Check Endpoints
+export const HEALTH_CONFIG = {
+  BASIC: `${HEALTH_BASE_URL}/health`,
+  DETAILED: `${HEALTH_BASE_URL}/health/detailed`,
+  USER: `${HEALTH_BASE_URL}/health/user`,
 };
 
 // Debug logging
