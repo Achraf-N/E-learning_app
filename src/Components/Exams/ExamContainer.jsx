@@ -196,12 +196,14 @@ const ExamContainer = ({ courseId, lessonId, onExamComplete, onClose }) => {
       if (!exam) {
         throw new Error('No exam found for this module');
       }
-      const hasInvalid = exam.content.questions.some(
-        (q) =>
-          !q.question ||
-          q.question.toLowerCase().includes('manquante') ||
-          q.question.toLowerCase().includes('non traité')
-      );
+      const hasInvalid =
+        exam.content.questions.length < 10 ||
+        exam.content.questions.some(
+          (q) =>
+            !q.question ||
+            q.question.toLowerCase().includes('manquante') ||
+            q.question.toLowerCase().includes('non traité')
+        );
 
       if (hasInvalid) {
         const altResponse = await fetch(

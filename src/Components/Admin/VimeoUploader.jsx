@@ -2,20 +2,23 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
-const VimeoUploader = () => {
+const ApiVideoUploader = () => {
   const [uploadState, setUploadState] = useState('idle'); // idle, uploading, processing, completed, error
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoData, setVideoData] = useState({
     title: '',
     description: '',
     courseId: '',
+    lessonId: '', // Added lesson selection
     lessonOrder: 1,
     duration: '',
-    vimeoId: '',
-    vimeoUrl: '',
+    videoId: '', // API.video videoId
+    videoUrl: '',
   });
   const [courses, setCourses] = useState([]);
+  const [lessons, setLessons] = useState([]); // Added lessons state
   const [loading, setLoading] = useState(true);
+  const [loadingLessons, setLoadingLessons] = useState(false); // Added lesson loading state
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
@@ -27,6 +30,31 @@ const VimeoUploader = () => {
   const token = localStorage.getItem('access_token');
   //const user = token ? jwtDecode(token) : null;
   const user = React.useMemo(() => (token ? jwtDecode(token) : null), [token]);
+
+  // Helper function to check if lesson has a valid video URL
+
+  const hasValidVideo = (lesson) => {
+    if (!lesson || typeof lesson.video !== 'string') return false;
+
+    const trimmedVideo = lesson.video.trim();
+
+    // Reject empty or placeholder values
+    if (
+      !trimmedVideo ||
+      trimmedVideo === 'null' ||
+      trimmedVideo === 'undefined'
+    ) {
+      return false;
+    }
+
+    // Check if it's a valid URL
+    try {
+      new URL(trimmedVideo);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   // Handle both roles array and role string formats
   //const userRoles = user ? user.roles || (user.role ? [user.role] : []) : [];
@@ -77,15 +105,65 @@ const VimeoUploader = () => {
     }
   };
 
+  const loadLessons = async (courseId) => {
+    if (!courseId) {
+      setLessons([]);
+      return;
+    }
+
+    try {
+      setLoadingLessons(true);
+      setError(''); // Clear any previous errors
+
+      console.log(`Loading lessons for course: ${courseId}`); // Debug log
+
+      const response = await fetch(
+        `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/lessons/module/${courseId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.ok) {
+        const lessonsData = await response.json();
+        console.log('Lessons loaded:', lessonsData); // Debug log
+
+        // Debug: Log each lesson's video field
+        lessonsData.forEach((lesson, index) => {
+          console.log(`Lesson ${index + 1}: "${lesson.title}"`);
+          console.log(`  video field: "${lesson.video}"`);
+          console.log(`  video type: ${typeof lesson.video}`);
+          console.log(`  has valid video: ${hasValidVideo(lesson)}`);
+          console.log('---');
+        });
+
+        setLessons(lessonsData);
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to load lessons:', response.status, errorText);
+        setError(
+          `Failed to load lessons: ${response.status} ${response.statusText}`
+        );
+        setLessons([]);
+      }
+    } catch (error) {
+      console.error('Failed to load lessons:', error);
+      setError(`Failed to load lessons: ${error.message}`);
+      setLessons([]);
+    } finally {
+      setLoadingLessons(false);
+    }
+  };
+
   const validateForm = () => {
     const errors = {};
 
-    if (!videoData.title.trim()) {
-      errors.title = 'Title is required';
-    }
-
     if (!videoData.courseId) {
       errors.courseId = 'Please select a course';
+    }
+
+    if (!videoData.lessonId) {
+      errors.lessonId = 'Please select a lesson';
     }
 
     if (!selectedFile) {
@@ -102,6 +180,16 @@ const VimeoUploader = () => {
       ...prev,
       [name]: value,
     }));
+
+    // Load lessons when course is selected
+    if (name === 'courseId') {
+      loadLessons(value);
+      // Reset lesson selection when course changes
+      setVideoData((prev) => ({
+        ...prev,
+        lessonId: '',
+      }));
+    }
 
     // Clear validation error when user starts typing
     if (validationErrors[name]) {
@@ -185,18 +273,24 @@ const VimeoUploader = () => {
       return;
     }
 
-    uploadToVimeo(selectedFile);
+    uploadToApiVideo(selectedFile);
   };
 
-  const uploadToVimeo = async (file) => {
+  const uploadToApiVideo = async (file) => {
     setUploadState('uploading');
     setUploadProgress(0);
     setError('');
 
     try {
-      // Step 1: Create upload ticket with Vimeo
-      const uploadTicketResponse = await fetch(
-        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/vimeo/upload',
+      // Get the selected lesson details for the title
+      const selectedLesson = lessons.find(
+        (lesson) => lesson.id === videoData.lessonId
+      );
+      const videoTitle = selectedLesson ? selectedLesson.title : file.name;
+
+      // Step 1: Create video on API.video and get upload URL
+      const createVideoResponse = await fetch(
+        'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/apivideo/create-video',
         {
           method: 'POST',
           headers: {
@@ -204,49 +298,38 @@ const VimeoUploader = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            size: file.size,
-            name: videoData.title || file.name,
+            title: videoTitle,
+            description: selectedLesson ? selectedLesson.content : '',
           }),
         }
       );
 
-      if (!uploadTicketResponse.ok) {
-        const errorData = await uploadTicketResponse.json().catch(() => ({}));
-        throw new Error(
-          errorData.detail || 'Failed to create Vimeo upload ticket'
-        );
+      if (!createVideoResponse.ok) {
+        const errorData = await createVideoResponse.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to create API.video video');
       }
 
-      const { upload_url, upload_ticket, video_id } =
-        await uploadTicketResponse.json();
+      const { video_id, upload_token, player_url } =
+        await createVideoResponse.json();
 
-      // Step 2: Upload file to Vimeo using tus resumable upload
-      const uploadResponse = await uploadFileToVimeo(
-        file,
-        upload_url,
-        (progress) => {
-          setUploadProgress(progress);
-        }
+      // Step 2: Upload file to API.video
+      await uploadFileToApiVideo(file, video_id, upload_token, (progress) => {
+        setUploadProgress(progress);
+      });
+
+      setUploadState('processing');
+      setUploadProgress(100);
+
+      // Step 3: Save video data to database (use player_url from API.video)
+      await saveVideoToDatabase(video_id, player_url);
+
+      setUploadState('completed');
+      setSuccess(
+        `Video uploaded successfully to lesson "${videoTitle}"! Processing may take a few minutes.`
       );
 
-      if (uploadResponse.ok) {
-        setUploadState('processing');
-        setUploadProgress(100);
-
-        // Step 3: Update video metadata on Vimeo
-        await updateVimeoMetadata(video_id);
-
-        // Step 4: Save video data to your database
-        await saveVideoToDatabase(video_id);
-
-        setUploadState('completed');
-        setSuccess(
-          `Video "${videoData.title}" uploaded successfully! Processing may take a few minutes.`
-        );
-
-        // Reset form after successful upload
-        resetForm();
-      }
+      // Reset form after successful upload
+      resetForm();
     } catch (error) {
       console.error('Upload error:', error);
       setError(`Upload failed: ${error.message}`);
@@ -259,20 +342,30 @@ const VimeoUploader = () => {
       title: '',
       description: '',
       courseId: '',
+      lessonId: '',
       lessonOrder: 1,
       duration: '',
-      vimeoId: '',
-      vimeoUrl: '',
+      videoId: '',
+      videoUrl: '',
     });
     setSelectedFile(null);
+    setLessons([]);
     setValidationErrors({});
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  const uploadFileToVimeo = async (file, uploadUrl, onProgress) => {
+  const uploadFileToApiVideo = async (
+    file,
+    videoId,
+    uploadToken,
+    onProgress
+  ) => {
     return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('file', file);
+
       const xhr = new XMLHttpRequest();
 
       xhr.upload.addEventListener('progress', (e) => {
@@ -294,61 +387,53 @@ const VimeoUploader = () => {
         reject(new Error('Network error during upload'));
       });
 
-      xhr.open('PATCH', uploadUrl);
-      xhr.setRequestHeader('Tus-Resumable', '1.0.0');
-      xhr.setRequestHeader('Upload-Offset', '0');
-      xhr.setRequestHeader('Content-Type', 'application/offset+octet-stream');
+      // API.video upload endpoint
+      xhr.open('POST', `https://ws.api.video/videos/${videoId}/source`);
+      xhr.setRequestHeader('Authorization', `Bearer ${uploadToken}`);
 
-      xhr.send(file);
+      xhr.send(formData);
     });
   };
 
-  const updateVimeoMetadata = async (videoId) => {
-    await fetch(
-      `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/vimeo/update-metadata/${videoId}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: videoData.title,
-          description: videoData.description,
-        }),
-      }
+  const saveVideoToDatabase = async (videoId, playerUrl) => {
+    // Get the selected lesson details
+    const selectedLesson = lessons.find(
+      (lesson) => lesson.id === videoData.lessonId
     );
-  };
+    if (!selectedLesson) {
+      throw new Error('Selected lesson not found');
+    }
 
-  const saveVideoToDatabase = async (videoId) => {
+    // Use the player URL from API.video, or fallback to a standard format
+    const videoUrl = playerUrl || `https://embed.api.video/vod/${videoId}`;
+
+    // Update the existing lesson with video information
     const response = await fetch(
-      'https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/lessons',
+      `https://nginx-gateway.blackbush-661cc25b.spaincentral.azurecontainerapps.io/api/v1/lessons/${videoData.lessonId}`,
       {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          title: videoData.title,
-          description: videoData.description,
-          course_id: videoData.courseId,
-          order_index: parseInt(videoData.lessonOrder),
-          video_url: `https://vimeo.com/${videoId}`,
-          vimeo_id: videoId,
-          video_type: 'vimeo',
+          // Only send the fields we want to update
+          video: videoUrl, // Store the API.video URL in the video column
+          vimeo_id: videoId, // Store API.video ID in vimeo_id field for compatibility
+          video_type: 'apivideo',
         }),
       }
     );
 
     if (!response.ok) {
-      throw new Error('Failed to save lesson to database');
+      throw new Error('Failed to update lesson with video');
     }
 
     setVideoData((prev) => ({
       ...prev,
-      vimeoId: videoId,
-      vimeoUrl: `https://vimeo.com/${videoId}`,
+      videoId: videoId,
+      videoUrl: videoUrl,
+      title: selectedLesson.title, // Update title from selected lesson
     }));
   };
 
@@ -381,11 +466,11 @@ const VimeoUploader = () => {
             Back to Dashboard
           </button>
           <h1 className="text-3xl font-bold text-gray-900">
-            {isAdmin ? 'Upload Video to Vimeo' : 'Upload Lesson Video'}
+            {isAdmin ? 'Upload Video to API.video' : 'Upload Lesson Video'}
           </h1>
           <p className="text-gray-600">
             {isAdmin
-              ? 'Upload lesson videos and automatically save to your course'
+              ? 'Upload lesson videos using API.video and save to your course'
               : 'Upload your lesson videos to share with students'}
           </p>
           <div className="mt-2">
@@ -479,38 +564,10 @@ const VimeoUploader = () => {
         <div className="bg-white rounded-lg shadow">
           <div className="p-6">
             <h2 className="text-lg font-medium text-gray-900 mb-6">
-              Video Information
+              Select Course and Lesson for Video Upload
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Title */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Lesson Title *
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={videoData.title}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    validationErrors.title
-                      ? 'border-red-500'
-                      : 'border-gray-300'
-                  }`}
-                  placeholder="e.g., Introduction to React Hooks"
-                  disabled={
-                    uploadState === 'uploading' || uploadState === 'processing'
-                  }
-                  required
-                />
-                {validationErrors.title && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {validationErrors.title}
-                  </p>
-                )}
-              </div>
-
               {/* Course */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -546,23 +603,96 @@ const VimeoUploader = () => {
                 )}
               </div>
 
-              {/* Lesson Order */}
+              {/* Lesson Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Lesson Order
+                  Lesson *
                 </label>
-                <input
-                  type="number"
-                  name="lessonOrder"
-                  value={videoData.lessonOrder}
+                <select
+                  name="lessonId"
+                  value={videoData.lessonId}
                   onChange={handleInputChange}
-                  min="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    validationErrors.lessonId
+                      ? 'border-red-500'
+                      : 'border-gray-300'
+                  }`}
                   disabled={
-                    uploadState === 'uploading' || uploadState === 'processing'
+                    loading ||
+                    loadingLessons ||
+                    !videoData.courseId ||
+                    uploadState === 'uploading' ||
+                    uploadState === 'processing'
                   }
-                />
+                  required
+                >
+                  <option value="">
+                    {loadingLessons
+                      ? 'Loading lessons...'
+                      : !videoData.courseId
+                      ? 'Select a course first'
+                      : lessons.length === 0
+                      ? 'No lessons found'
+                      : 'Select a lesson'}
+                  </option>
+                  {lessons.map((lesson) => (
+                    <option key={lesson.id} value={lesson.id}>
+                      {lesson.title}{' '}
+                      {hasValidVideo(lesson) ? '(Has Video)' : '(No Video)'}
+                    </option>
+                  ))}
+                </select>
+                {validationErrors.lessonId && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {validationErrors.lessonId}
+                  </p>
+                )}
               </div>
+
+              {/* Selected Lesson Info */}
+              {videoData.lessonId && lessons.length > 0 && (
+                <div className="md:col-span-2">
+                  {(() => {
+                    const selectedLesson = lessons.find(
+                      (lesson) => lesson.id === videoData.lessonId
+                    );
+                    return selectedLesson ? (
+                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <h4 className="font-medium text-gray-900 mb-2">
+                          Selected Lesson:
+                        </h4>
+                        <p className="text-sm text-gray-700 mb-1">
+                          <strong>Title:</strong> {selectedLesson.title}
+                        </p>
+                        {selectedLesson.content && (
+                          <p className="text-sm text-gray-700 mb-1">
+                            <strong>Content:</strong> {selectedLesson.content}
+                          </p>
+                        )}
+                        <p className="text-sm text-gray-700">
+                          <strong>Current Status:</strong>
+                          <span
+                            className={`ml-1 ${
+                              hasValidVideo(selectedLesson)
+                                ? 'text-green-600'
+                                : 'text-orange-600'
+                            }`}
+                          >
+                            {hasValidVideo(selectedLesson)
+                              ? 'Has video'
+                              : 'No video uploaded yet'}
+                          </span>
+                        </p>
+                        {hasValidVideo(selectedLesson) && (
+                          <p className="text-sm text-yellow-600 mt-1">
+                            ⚠️ This will replace the existing video
+                          </p>
+                        )}
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
+              )}
 
               {/* Duration (optional) */}
               <div>
@@ -581,24 +711,6 @@ const VimeoUploader = () => {
                   }
                 />
               </div>
-            </div>
-
-            {/* Description */}
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={videoData.description}
-                onChange={handleInputChange}
-                rows="4"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Describe what students will learn in this lesson..."
-                disabled={
-                  uploadState === 'uploading' || uploadState === 'processing'
-                }
-              />
             </div>
 
             {/* File Upload */}
@@ -972,4 +1084,4 @@ const VimeoUploader = () => {
   );
 };
 
-export default VimeoUploader;
+export default ApiVideoUploader;
